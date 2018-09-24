@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>three.js webgl - glTF loader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        #canvas {
+            /* background-color: blue; */
+            width: 50vw;
+            height: 40vw;
+            margin: auto;
+            margin-top: 150px;
+            border-style: solid;
+        }
+
+        .button {
+            position: relative;
+            bottom: 5px;
+            left: 5px;
+            background-color: blue;
+            padding: 15px;
+            border: 1px solid;
+            z-index: 20;
+        }
+
+        #testButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px;
+            color: #fff;
+            background-color: #555;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="canvas">
+
+    </div>
+
+    <script src="js/three.js"></script>
+
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/MTLLoader.js"></script>
+    <script src="js/GLTFLoader.js"></script>
+    <script src="js/OBJLoader.js"></script>
+
+    <script src="js/Detector.js"></script>
+
+    <script src="js/Initialize.js"></script>
+
+    <script>
+        if (Detector.webgl) {
+            // Initiate function or other initializations here
+            loadModelOntoPage('/models/PB170_Sneaker_Sm.obj');
+        } else {
+            var warning = Detector.getWebGLErrorMessage();
+            document.getElementById('canvas').appendChild(warning);
+        }
+    </script>
+
+    <a onClick="causeHop()" id="testButton" href="#" title="TestButton" style="">Test Animation Interaction</a>
+
+</body>
+
+</html>
