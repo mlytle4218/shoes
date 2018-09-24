@@ -5,6 +5,9 @@ var container, controls, model;
 var fileName, fileExt, path;
 var camera, scene, renderer, light, light3, raycaster, mouse, plane, print;
 var sphereGeometry, planeGeometry;
+var rotationDone = false;
+var keepAnimating = true;
+var floatProgress = 0;
 // var skyColor = 0xbbbbff;
 // var groundColor = 0x444422;
 var skyColor = 0xffffff;
@@ -54,7 +57,7 @@ function init() {
     scene.background = color;
 
     light = new THREE.AmbientLight(skyColor);
-    light.position.set(0,10,0);
+    light.position.set(0, 10, 0);
     scene.add(light)
 
     // checking for the type of file... should be gone when a file type
@@ -74,6 +77,7 @@ function init() {
             model.rotation.x = -Math.PI / 2;
             scene.add(myObj);
             scene.add(print);
+            modelLoaded = true;
             setTimeout(function () {
                 // littleHop(model);
 
@@ -92,30 +96,30 @@ function init() {
 
 
     // Create a texture loader so we can load our image file
-var loader = new THREE.TextureLoader();
+    var loader = new THREE.TextureLoader();
 
-// Load an image file into a custom material
-var material = new THREE.MeshLambertMaterial({
-//   map: loader.load('https://s3.amazonaws.com/duhaime/blog/tsne-webgl/assets/cat.jpg')
-map: loader.load('../models/print2.png')
-});
+    // Load an image file into a custom material
+    var material = new THREE.MeshLambertMaterial({
+        //   map: loader.load('https://s3.amazonaws.com/duhaime/blog/tsne-webgl/assets/cat.jpg')
+        map: loader.load('../models/print2.png')
+    });
 
-material.transparent = true;
+    material.transparent = true;
 
-// create a plane geometry for the image with a width of 10
-// and a height that preserves the image's aspect ratio
-var geometry = new THREE.PlaneGeometry(10, 20);
+    // create a plane geometry for the image with a width of 10
+    // and a height that preserves the image's aspect ratio
+    var geometry = new THREE.PlaneGeometry(10, 20);
 
-// combine our image geometry and material into a mesh
-print = new THREE.Mesh(geometry, material);
+    // combine our image geometry and material into a mesh
+    print = new THREE.Mesh(geometry, material);
 
-// set the position of the image mesh in the x,y,z dimensions
-print.position.set(0,-2,0)
-print.rotation.x = (Math.PI / 2)*3;
-print.rotation.z = (Math.PI /2);
+    // set the position of the image mesh in the x,y,z dimensions
+    print.position.set(0, -2, 0)
+    print.rotation.x = (Math.PI / 2) * 3;
+    print.rotation.z = (Math.PI / 2);
 
-// add the image to the scene
-// scene.add(print);
+    // add the image to the scene
+    // scene.add(print);
 
     // adding raycaster and mouse for comparing mouse actions to object posistions
     raycaster = new THREE.Raycaster();
@@ -132,7 +136,9 @@ print.rotation.z = (Math.PI /2);
     controls.update();
 
     //set renderer
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({
+        antialias: true
+    });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.gammaOutput = true;
@@ -140,6 +146,8 @@ print.rotation.z = (Math.PI /2);
 }
 
 window.addEventListener('resize', onWindowResize, false);
+
+window.addEventListener('mousedown', onMouseDown, false);
 
 
 
@@ -162,11 +170,9 @@ function animate() {
 
     requestAnimationFrame(animate);
 
-    raycaster.setFromCamera(mouse, camera);
 
-    var intersects = raycaster.intersectObjects(scene.children);
-    if (intersects.lenght > 0) {
-        littleHop(intersects[0]);
+    if (rotationDone & keepAnimating) {
+        float();
     }
 
     renderer.render(scene, camera);
@@ -175,8 +181,15 @@ function animate() {
 
 // function to register mouse location on click
 function onMouseDown(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = (event.clientY / window.innerHeight) * 2 + 1;
+    if (rotationDone) {
+        keepAnimating = false;
+        model.position.x = 0;
+        model.position.y = 0;
+        model.position.z = 0;
+        scene.remove(print);
+    }
+    // mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    // mouse.y = (event.clientY / window.innerHeight) * 2 + 1;
 }
 
 
@@ -225,11 +238,14 @@ function causeHop() {
 
 //ugly function to rotate 
 function rotateOnce(model) {
+    rotationDone = false;
     var id = setInterval(frame, 10);
     var progress = 0;
+
     function frame() {
         if (progress >= 125) {
             clearInterval(id);
+            rotationDone = true;
         } else {
             progress++;
             model.rotation.z += 0.05;
@@ -237,10 +253,32 @@ function rotateOnce(model) {
         }
     }
 }
+
+function float() {
+    if (floatProgress >= 160) {
+        floatProgress = 0;
+    } else if (floatProgress < 40) {
+        floatProgress++;
+        model.position.y += 0.005;
+        // print.scale.set(model.position.z, model.position.z, model.position.z);
+    } else if (floatProgress < 80) {
+        floatProgress++
+        model.position.y -= 0.005;
+    } else if (floatProgress < 120) {
+        floatProgress++;
+        model.position.y -= 0.005;
+    } else if (floatProgress < 160) {
+        floatProgress++;
+        model.position.y += 0.005;
+    }
+}
+
+
 // ugly function to animate hop
 function littleHop(model) {
     var id = setInterval(frame, 10);
     var progress = 0;
+
     function frame() {
         if (progress >= 80) {
             clearInterval(id);
