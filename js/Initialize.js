@@ -101,7 +101,7 @@ function init() {
     // Load an image file into a custom material
     var material = new THREE.MeshLambertMaterial({
         //   map: loader.load('https://s3.amazonaws.com/duhaime/blog/tsne-webgl/assets/cat.jpg')
-        map: loader.load('../models/print2.png')
+        map: loader.load('models/print2.png')
     });
 
     material.transparent = true;
