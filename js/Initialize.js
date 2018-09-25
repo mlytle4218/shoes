@@ -12,6 +12,7 @@ var floatProgress = 0;
 // var groundColor = 0x444422;
 var skyColor = 0xffffff;
 var groundColor = 0xffffff;
+var connectingElement = 'canvas';
 
 
 
@@ -43,10 +44,10 @@ function init() {
 
     // getting the container
     // container = document.createElement('div');
-    container = document.getElementById('canvas');
+    container = document.getElementById(connectingElement);
     document.body.appendChild(container);
 
-    // setting up the camera - this posistion just looks a little better to me
+    // setting up the camera - this position just looks a little better to me
     camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 50);
     camera.position.set(0, 0, 30);
     // camera.position.set(-5, 25, 20);
@@ -128,7 +129,7 @@ function init() {
 
 
     // ading the orbit controls - pan and zoom
-    controls = new THREE.OrbitControls(camera);
+    controls = new THREE.OrbitControls(camera, document.getElementById(connectingElement));
     controls.target.set(0, 5, 0);
     // the max and min zoom here
     controls.maxDistance = 40;
@@ -188,8 +189,9 @@ function onMouseDown(event) {
         model.position.z = 0;
         scene.remove(print);
     }
-    // mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    // mouse.y = (event.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = (event.clientY / window.innerHeight) * 2 + 1;
+    console.log(mouse.x + " " + mouse.y);
 }
 
 
