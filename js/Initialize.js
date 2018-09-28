@@ -14,11 +14,13 @@ var skyColor = 0xffffff;
 var groundColor = 0xffffff;
 var connectingElement = 'canvas';
 var cameraDistance = 500;
+var shadowPrint;
 
 
 
 
-function loadModelOntoPage(model) {
+function loadModelOntoPage(model, shadow) {
+    shadowPrint = shadow;
     modelType = model.split('.').pop();
     if (model.includes('/') || model.includes('\\')) {
         var fullFileName = model.split('\\').pop().split('/').pop();
@@ -163,7 +165,7 @@ function init() {
 
     // Load an image file into a custom material
     var material = new THREE.MeshLambertMaterial({
-        map: loader.load('pics/print.png')
+        map: loader.load(shadowPrint)
     });
 
     material.transparent = true;

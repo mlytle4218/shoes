@@ -56,10 +56,7 @@
 
     <script>
         if (Detector.webgl) {
-            // Initiate function or other initializations here
-            // loadModelOntoPage('models/PB170_Sneaker_Sm.obj');
-            // loadModelOntoPage('models/new/KT4_Shoes_F02_full.drc');
-            loadModelOntoPage('models/KT4_Shoes_F02_full.obj');
+            loadModelOntoPage('models/KT4_Shoes_F02_full.obj', 'pics/print.png');
         } else {
             var warning = Detector.getWebGLErrorMessage();
             document.getElementById('canvas').appendChild(warning);
