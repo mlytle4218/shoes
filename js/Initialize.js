@@ -15,28 +15,42 @@ var groundColor = 0xffffff;
 var connectingElement = 'canvas';
 var cameraDistance = 500;
 var shadowPrint;
+var objFile;
+var mtlFile;
 
 
+function loadModelOntoPage(jsonObject) {
+    shadowPrint = jsonObject.files[2].shadow;
+    objFile = jsonObject.files[0].obj;
+    mtlFile = jsonObject.files[1].mtl;
+    console.log(mtlFile);
 
 
-function loadModelOntoPage(model, shadow) {
-    shadowPrint = shadow;
-    modelType = model.split('.').pop();
-    if (model.includes('/') || model.includes('\\')) {
-        var fullFileName = model.split('\\').pop().split('/').pop();
-        path = model.replace(fullFileName, '');
-        fileExt = fullFileName.split('.').pop();
-        fileName = fullFileName.replace('.' + fileExt, '');
-
-    } else {
-        path = '';
-        fileExt = model.split('.').pop();
-        fileName = model.replace('.' + fileExt, '');
-
-    }
     init();
     animate();
 }
+
+
+
+
+// function loadModelOntoPage(model,material, shadow) {
+//     shadowPrint = shadow;
+//     modelType = model.split('.').pop();
+//     if (model.includes('/') || model.includes('\\')) {
+//         var fullFileName = model.split('\\').pop().split('/').pop();
+//         path = model.replace(fullFileName, '');
+//         fileExt = fullFileName.split('.').pop();
+//         fileName = fullFileName.replace('.' + fileExt, '');
+
+//     } else {
+//         path = '';
+//         fileExt = model.split('.').pop();
+//         fileName = model.replace('.' + fileExt, '');
+
+//     }
+//     init();
+//     animate();
+// }
 
 
 
@@ -64,96 +78,116 @@ function init() {
     light.position.set(0, 10, 0);
     scene.add(light)
 
+    var modelLoading = loadObjectModel(objFile, mtlFile);
+    modelLoading.then(result => {
+        model = result;
+        model.rotation.y = Math.PI / 2;
+        model.scale.x = 0.30;
+        model.scale.y = 0.30;
+        model.scale.z = 0.30;
+        scene.add(result);
+        scene.add(print);
+        modelLoaded = true;
+        setTimeout(function () {
+            rotateOnce(model);
+        }, 100);
+
+    }).catch(error => {
+        console.error(error)
+    });
+
+
+
     // checking for the type of file... should be gone when a file type
     // is known 
-    if (fileExt == 'gltf' || fileExt == 'glb') {
-        var mypro = loadGltfModel(path + fileName + "." + fileExt);
-        mypro.then(myObj => {
-            model = myObj;
-            scene.add(myObj.scene);
-        }).catch(error => {
-            console.error(error)
-        });
-    } else if (fileExt == 'obj') {
-        var mypro = loadObjModel(path, fileName);
-        mypro.then(myObj => {
-            model = myObj;
-            model.rotation.y = Math.PI / 2;
-            // model.position.y = 2;
-            model.scale.x = 0.30;
-            model.scale.y = 0.30;
-            model.scale.z = 0.30;
-            scene.add(myObj);
-            scene.add(print);
-            modelLoaded = true;
-            setTimeout(function () {
-                // littleHop(model);
+    // if (fileExt == 'gltf' || fileExt == 'glb') {
+    //     var mypro = loadGltfModel(path + fileName + "." + fileExt);
+    //     mypro.then(myObj => {
+    //         model = myObj;
+    //         scene.add(myObj.scene);
+    //     }).catch(error => {
+    //         console.error(error)
+    //     });
+    // } else if (fileExt == 'obj') {
+    //     var mypro = loadObjModel(path, fileName);
+    //     mypro.then(myObj => {
+    //         model = myObj;
+    //         model.rotation.y = Math.PI / 2;
+    //         // model.position.y = 2;
+    //         model.scale.x = 0.30;
+    //         model.scale.y = 0.30;
+    //         model.scale.z = 0.30;
+    //         scene.add(myObj);
+    //         scene.add(print);
+    //         modelLoaded = true;
+    //         setTimeout(function () {
+    //             // littleHop(model);
 
-                rotateOnce(model);
-            }, 100);
+    //             rotateOnce(model);
+    //         }, 100);
 
-        }).catch(error => {
-            console.error(error)
-        });
+    //     }).catch(error => {
+    //         console.error(error)
+    //     });
 
-    } else if (fileExt == "drc") {
-        // var mtlProgress = console.log;
-        // var drcProgress = console.log;
-        // var mtlLoader = new THREE.MTLLoader();
-        // mtlLoader.setPath(path);
-        // var mtlPromise = mtlLoader.load(fileName + ".mtl", res =>{
-        //     console.log(res);
-        // }, mtlProgress, rej => {
-        //     confirm.error(rej);
-        // });
+    // } else if (fileExt == "drc") {
+    //     // var mtlProgress = console.log;
+    //     // var drcProgress = console.log;
+    //     // var mtlLoader = new THREE.MTLLoader();
+    //     // mtlLoader.setPath(path);
+    //     // var mtlPromise = mtlLoader.load(fileName + ".mtl", res =>{
+    //     //     console.log(res);
+    //     // }, mtlProgress, rej => {
+    //     //     confirm.error(rej);
+    //     // });
 
-        // THREE.DRACOLoader.setDecoderPath('js/');
-        // THREE.DRACOLoader.setDecoderConfig({type: 'js'});
-        // var dracoLoader = new THREE.DRACOLoader();
-        // var drcPromise = dracoLoader.load(path + fileName + ".drc",  res =>{
-        //     console.log(res);
-        // }, drcProgress,  res =>{
-        //     console.log(res);
-        // });
+    //     // THREE.DRACOLoader.setDecoderPath('js/');
+    //     // THREE.DRACOLoader.setDecoderConfig({type: 'js'});
+    //     // var dracoLoader = new THREE.DRACOLoader();
+    //     // var drcPromise = dracoLoader.load(path + fileName + ".drc",  res =>{
+    //     //     console.log(res);
+    //     // }, drcProgress,  res =>{
+    //     //     console.log(res);
+    //     // });
 
-        // Promise.all([drcPromise, mtlPromise]).then(function(values) {
-        //     console.log(values[0]);
-        //     console.log(values[1]);
-        //   });
-
-
+    //     // Promise.all([drcPromise, mtlPromise]).then(function(values) {
+    //     //     console.log(values[0]);
+    //     //     console.log(values[1]);
+    //     //   });
 
 
 
 
-        console.log("in drc");
-        var mypro = loadDRACOModel(path, fileName);
-        console.log(mypro);
-        mypro.then(myObj => {
-            console.log("then");
-            console.log(myObj);
-            myObj.computeVertexNormals();
-            var material = new THREE.MeshStandardMaterial({
-                color: 0xff0000
-            });
-            var mesh = new THREE.Mesh(myObj, material);
-            mesh.scale.x = 0.3;
-            mesh.scale.y = 0.3;
-            mesh.scale.z = 0.3;
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            scene.add(mesh);
-            // model = myObj;
-            // scene.add(model);
-            // modelLoaded = true;
-            // setTimeout(() =>{
-            //     rotateOnce(model);
-            // },100);
-        }).catch(error => {
-            console.log(error);
-        });
 
-    }
+
+    //     console.log("in drc");
+    //     var mypro = loadDRACOModel(path, fileName);
+    //     console.log(mypro);
+    //     mypro.then(myObj => {
+    //         console.log("then");
+    //         console.log(myObj);
+    //         myObj.computeVertexNormals();
+    //         var material = new THREE.MeshStandardMaterial({
+    //             color: 0xff0000
+    //         });
+    //         var mesh = new THREE.Mesh(myObj, material);
+    //         mesh.scale.x = 0.3;
+    //         mesh.scale.y = 0.3;
+    //         mesh.scale.z = 0.3;
+    //         mesh.castShadow = true;
+    //         mesh.receiveShadow = true;
+    //         scene.add(mesh);
+    //         // model = myObj;
+    //         // scene.add(model);
+    //         // modelLoaded = true;
+    //         // setTimeout(() =>{
+    //         //     rotateOnce(model);
+    //         // },100);
+    //     }).catch(error => {
+    //         console.log(error);
+    //     });
+
+    // }
 
 
 
@@ -337,7 +371,26 @@ function loadObjModel(path, name) {
             objLoader.load(name + ".obj", resolve, progress, reject);
 
         }, progress, reject);
-    });
+    })
+}
+
+
+function loadObjectModel(obj, mat){
+    console.log(obj);
+    console.log(mat);
+    var progress; // = console.log;
+
+    return new Promise(function(resolve, reject) {
+        var mtlLoader = new THREE.MTLLoader();
+        // mtlLoader.setPath(path);
+        mtlLoader.load(mat, function(materials){
+            materials.preload();
+            var objLoader = new THREE.OBJLoader();
+
+            objLoader.setMaterials(materials);
+            objLoader.load(obj, resolve, progress, reject);
+        },progress, reject);
+    })
 }
 
 function loadDRACOModel(path, name) {
