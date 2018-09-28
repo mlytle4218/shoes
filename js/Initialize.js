@@ -13,6 +13,7 @@ var floatProgress = 0;
 var skyColor = 0xffffff;
 var groundColor = 0xffffff;
 var connectingElement = 'canvas';
+var cameraDistance = 500;
 
 
 
@@ -49,12 +50,12 @@ function init() {
 
     // setting up the camera - this position just looks a little better to me
     camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 50);
-    camera.position.set(0, 0, 30);
+    camera.position.set(0, 0, cameraDistance);
     // camera.position.set(-5, 25, 20);
 
     // setting the scene
     scene = new THREE.Scene();
-    var color = new THREE.Color('white');
+    var color = new THREE.Color(0xdddddd);
     scene.background = color;
 
     light = new THREE.AmbientLight(skyColor);
@@ -75,7 +76,11 @@ function init() {
         var mypro = loadObjModel(path, fileName);
         mypro.then(myObj => {
             model = myObj;
-            model.rotation.x = -Math.PI / 2;
+            model.rotation.y = Math.PI / 2;
+            // model.position.y = 2;
+            model.scale.x = 0.30;
+            model.scale.y = 0.30;
+            model.scale.z = 0.30;
             scene.add(myObj);
             scene.add(print);
             modelLoaded = true;
@@ -87,6 +92,63 @@ function init() {
 
         }).catch(error => {
             console.error(error)
+        });
+
+    } else if (fileExt == "drc") {
+        // var mtlProgress = console.log;
+        // var drcProgress = console.log;
+        // var mtlLoader = new THREE.MTLLoader();
+        // mtlLoader.setPath(path);
+        // var mtlPromise = mtlLoader.load(fileName + ".mtl", res =>{
+        //     console.log(res);
+        // }, mtlProgress, rej => {
+        //     confirm.error(rej);
+        // });
+
+        // THREE.DRACOLoader.setDecoderPath('js/');
+        // THREE.DRACOLoader.setDecoderConfig({type: 'js'});
+        // var dracoLoader = new THREE.DRACOLoader();
+        // var drcPromise = dracoLoader.load(path + fileName + ".drc",  res =>{
+        //     console.log(res);
+        // }, drcProgress,  res =>{
+        //     console.log(res);
+        // });
+
+        // Promise.all([drcPromise, mtlPromise]).then(function(values) {
+        //     console.log(values[0]);
+        //     console.log(values[1]);
+        //   });
+
+
+
+
+
+
+        console.log("in drc");
+        var mypro = loadDRACOModel(path, fileName);
+        console.log(mypro);
+        mypro.then(myObj => {
+            console.log("then");
+            console.log(myObj);
+            myObj.computeVertexNormals();
+            var material = new THREE.MeshStandardMaterial({
+                color: 0xff0000
+            });
+            var mesh = new THREE.Mesh(myObj, material);
+            mesh.scale.x = 0.3;
+            mesh.scale.y = 0.3;
+            mesh.scale.z = 0.3;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            scene.add(mesh);
+            // model = myObj;
+            // scene.add(model);
+            // modelLoaded = true;
+            // setTimeout(() =>{
+            //     rotateOnce(model);
+            // },100);
+        }).catch(error => {
+            console.log(error);
         });
 
     }
@@ -101,8 +163,7 @@ function init() {
 
     // Load an image file into a custom material
     var material = new THREE.MeshLambertMaterial({
-        //   map: loader.load('https://s3.amazonaws.com/duhaime/blog/tsne-webgl/assets/cat.jpg')
-        map: loader.load('models/print2.png')
+        map: loader.load('pics/print.png')
     });
 
     material.transparent = true;
@@ -171,6 +232,19 @@ function animate() {
 
     requestAnimationFrame(animate);
 
+    // // update the picking ray with the camera and mouse position
+    // raycaster.setFromCamera( mouse, camera );
+
+    // // calculate objects intersecting the picking ray
+    // var intersects = raycaster.intersectObjects( scene.children , true);
+    // console.log(intersects[0]);
+    // for ( var i = 0; i < intersects.length; i++ ) {
+
+    //     // intersects[ i ].object.material.color.set( 0xff0000 );
+    //     console.log(intersects[i]);
+
+    // }
+
 
     if (rotationDone & keepAnimating) {
         float();
@@ -189,9 +263,53 @@ function onMouseDown(event) {
         model.position.z = 0;
         scene.remove(print);
     }
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = (event.clientY / window.innerHeight) * 2 + 1;
-    console.log(mouse.x + " " + mouse.y);
+
+    var rightMost = container.offsetLeft + container.clientWidth;
+    if (event.clientX > container.offsetLeft & event.clientX < rightMost) {
+
+        mouse.x = (((event.clientX - container.offsetLeft) / container.clientWidth));
+        console.log(mouse.x);
+    }
+    var bottomMost = container.offsetTop + container.clientHeight;
+
+    if (event.clientY > container.offsetTop & event.clientY < bottomMost) {
+        mouse.y = (((container.clientHeight - (event.clientY - container.offsetTop)) / container.clientHeight));
+        console.log(mouse.y);
+    }
+
+    //
+
+    raycaster.setFromCamera(mouse, camera);
+    var intersects = raycaster.intersectObjects(scene.children, true);
+    for (var i = 0; i < intersects.length; i++) {
+        console.log(intersects[i]);
+    }
+
+    event.preventDefault();
+
+
+}
+
+function loadMaterials(path, name) {
+    var progress; // = console.log;
+    return new Promise((resolve, reject) => {
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath(path);
+        mtlLoader.load(name + ".mtl", resolve, progress, reject);
+    });
+}
+
+function loadDRACOModelOnly(path, name) {
+
+    var progress;// = console.log;
+
+    return new Promise(function (resolve, reject) {
+
+        THREE.DRACOLoader.setDecoderPath('js/');
+        THREE.DRACOLoader.setDecoderConfig({type: 'js'});
+        var dracoLoader = new THREE.DRACOLoader();
+        dracoLoader.load(path + name + ".drc", resolve, progress, reject);
+    });
 }
 
 
@@ -219,6 +337,57 @@ function loadObjModel(path, name) {
         }, progress, reject);
     });
 }
+
+function loadDRACOModel(path, name) {
+    console.log("in load DRACO model");
+
+    var progress1 = console.log;
+    var progress2 = console.log;
+
+    return new Promise(function (resolve, reject) {
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath(path);
+        mtlLoader.load(name + ".mtl", function (materials) {
+
+            materials.preload();
+
+            THREE.DRACOLoader.setDecoderPath('js/');
+            THREE.DRACOLoader.setDecoderConfig({
+                type: 'js'
+            });
+            var dracoLoader = new THREE.DRACOLoader();
+            dracoLoader.load(path + name + ".drc", resolve, progress2, reject);
+            // dracoLoader.load( path + name + ".drc", function ( geometry ) {
+
+
+            //     geometry.computeVertexNormals();
+
+            //     var mesh = new THREE.Mesh( geometry, materials );
+            //     model = mesh;
+            //     // scene.add(mesh);
+            // 	// mesh.castShadow = true;
+            // 	// mesh.receiveShadow = true;
+            // 	// scene.add( mesh );
+
+            // 	// Release decoder resources.
+            //     THREE.DRACOLoader.releaseDecoderModule();
+            //     return mesh;
+
+            // }, pro =>{
+            //     console.log(pro);
+            // }, function(){
+            //     console.log("hey");
+            //  } );
+
+            // dracoLoader.setMaterials(materials);
+            // dracoLoader.setPath(path);
+            // dracoLoader.load(name + ".obj", resolve, progress, reject);
+
+        }, progress1, reject);
+    });
+}
+
+
 
 // function to load gltf model - this just takes the filename with the
 // gltf extension. That file will point to relative adjacent needed for 
@@ -250,7 +419,7 @@ function rotateOnce(model) {
             rotationDone = true;
         } else {
             progress++;
-            model.rotation.z += 0.05;
+            model.rotation.y += 0.05;
             print.rotation.z += 0.05;
         }
     }

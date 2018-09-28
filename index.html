@@ -52,11 +52,14 @@
     <script src="js/Detector.js"></script>
 
     <script src="js/Initialize.js"></script>
+    <script src="js/DRACOLoader.js"></script>
 
     <script>
         if (Detector.webgl) {
             // Initiate function or other initializations here
-            loadModelOntoPage('models/PB170_Sneaker_Sm.obj');
+            // loadModelOntoPage('models/PB170_Sneaker_Sm.obj');
+            // loadModelOntoPage('models/new/KT4_Shoes_F02_full.drc');
+            loadModelOntoPage('models/KT4_Shoes_F02_full.obj');
         } else {
             var warning = Detector.getWebGLErrorMessage();
             document.getElementById('canvas').appendChild(warning);
