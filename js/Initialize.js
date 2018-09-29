@@ -12,18 +12,21 @@ var floatProgress = 0;
 // var groundColor = 0x444422;
 var skyColor = 0xffffff;
 var groundColor = 0xffffff;
-var connectingElement = 'canvas';
+var connectingElement = 'product-canvas';
 var cameraDistance = 500;
 var shadowPrint;
 var objFile;
 var mtlFile;
+var gltfFile;
 
 
 function loadModelOntoPage(jsonObject) {
-    shadowPrint = jsonObject.files[2].shadow;
-    objFile = jsonObject.files[0].obj;
-    mtlFile = jsonObject.files[1].mtl;
-    console.log(mtlFile);
+    shadowPrint = jsonObject.shadow;
+    gltfFile = jsonObject.gltf;
+    // shadowPrint = jsonObject.files[2].shadow;
+    // objFile = jsonObject.files[0].obj;
+    // mtlFile = jsonObject.files[1].mtl;
+    // console.log(mtlFile);
 
 
     init();
@@ -76,25 +79,41 @@ function init() {
 
     light = new THREE.AmbientLight(skyColor);
     light.position.set(0, 10, 0);
-    scene.add(light)
+    scene.add(light);
 
-    var modelLoading = loadObjectModel(objFile, mtlFile);
-    modelLoading.then(result => {
-        model = result;
-        model.rotation.y = Math.PI / 2;
-        model.scale.x = 0.30;
-        model.scale.y = 0.30;
-        model.scale.z = 0.30;
-        scene.add(result);
+    var gltfLoader = new THREE.GLTFLoader();
+    var progress = console.log;
+    gltfLoader.load(gltfFile, function (gltf) {
+        model = gltf.scene;
+        model.rotation.y = -Math.PI / 2;
+        scene.add(model);
         scene.add(print);
         modelLoaded = true;
-        setTimeout(function () {
+        setTimeout(function() {
             rotateOnce(model);
         }, 100);
-
-    }).catch(error => {
-        console.error(error)
+    }, progress, function (error) {
+        console.error(error);
     });
+
+
+    // var modelLoading = loadObjectModel(objFile, mtlFile);
+    // modelLoading.then(result => {
+    //     model = result;
+    //     model.rotation.y = Math.PI / 2;
+    //     model.scale.x = 0.30;
+    //     model.scale.y = 0.30;
+    //     model.scale.z = 0.30;
+    //     scene.add(result);
+    //     scene.add(print);
+    //     modelLoaded = true;
+    //     setTimeout(function () {
+    //         rotateOnce(model);
+    //     }, 100);
+
+    // }).catch(error => {
+    //     console.error(error)
+    // });
 
 
 
