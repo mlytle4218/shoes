@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
-        #canvas {
+        #product-canvas {
             /* background-color: blue; */
             width: 50vw;
             height: 40vw;
@@ -38,7 +38,7 @@
 </head>
 
 <body>
-    <div id="canvas">
+    <div id="product-canvas">
 
     </div>
 
@@ -55,12 +55,16 @@
     <script src="js/DRACOLoader.js"></script>
 
     <script>
-        var make = {
-            files: [
-                {"obj":"models/KT4_Shoes_F02_full.obj"},
-                {"mtl":"models/KT4_Shoes_F02_full.mtl"},
-                {"shadow":"pics/print.png"}
-            ]
+        // var make = {
+        //     files: [
+        //         {"obj":"models/KT4_Shoes_F02_full.obj"},
+        //         {"mtl":"models/KT4_Shoes_F02_full.mtl"},
+        //         {"shadow":"pics/print.png"}
+        //     ]
+        // }
+        var make ={
+            "gltf":"model.gltf",
+            "shadow":"pics/print.png"
         }
         if (Detector.webgl) {
             // loadModelOntoPage('models/KT4_Shoes_F02_full.obj', 'pics/print.png');
@@ -71,7 +75,7 @@
         }
     </script>
 
-    <a onClick="causeHop()" id="testButton" href="#" title="TestButton" style="">Test Animation Interaction</a>
+    <a onClick="causeHop()" id="testButton" href="#" title="TestButton">Test Animation Interaction</a>
 
 </body>
 
