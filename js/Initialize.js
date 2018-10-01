@@ -8,8 +8,6 @@ var sphereGeometry, planeGeometry;
 var rotationDone = false;
 var keepAnimating = true;
 var floatProgress = 0;
-// var skyColor = 0xbbbbff;
-// var groundColor = 0x444422;
 var skyColor = 0xffffff;
 var groundColor = 0xffffff;
 var connectingElement = 'product-canvas';
@@ -347,7 +345,7 @@ function onMouseDown(event) {
 
 function loadMaterials(path, name) {
     var progress; // = console.log;
-    return new Promise((resolve, reject) => {
+    return new Promise(function(resolve, reject) {
         var mtlLoader = new THREE.MTLLoader();
         mtlLoader.setPath(path);
         mtlLoader.load(name + ".mtl", resolve, progress, reject);
