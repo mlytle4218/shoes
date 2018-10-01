@@ -1,6 +1,7 @@
 /*
 	Developed my Marc Lytle 2018
 */
+
 var container, controls, model;
 var fileName, fileExt, path;
 var camera, scene, renderer, light, light3, raycaster, mouse, plane, print;
@@ -10,19 +11,14 @@ var floatProgress = 0;
 var skyColor = 0xffffff;
 var connectingElement = 'product-canvas';
 var cameraDistance = 500;
-var shadowPrint;
-var gltfFile;
 
 
 function loadModelOntoPage(jsonObject) {
-    shadowPrint = jsonObject.shadow;
-    gltfFile = jsonObject.gltf;
-    init();
-    animate();
+    init(jsonObject.gltf, jsonObject.shadow);
 }
 
 
-function init() {
+function init(gltfFile, shadowPrint) {
 
     // getting the container
     container = document.getElementById(connectingElement);
@@ -31,7 +27,6 @@ function init() {
     // setting up the camera - this position just looks a little better to me
     camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 50);
     camera.position.set(0, 0, cameraDistance);
-    // camera.position.set(-5, 25, 20);
 
     // setting the scene
     scene = new THREE.Scene();
@@ -103,6 +98,8 @@ function init() {
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.gammaOutput = true;
     container.appendChild(renderer.domElement);
+
+    animate();
 }
 
 window.addEventListener('resize', onWindowResize, false);
@@ -137,31 +134,6 @@ function onMouseDown(event) {
         model.position.z = 0;
         scene.remove(print);
     }
-
-    var rightMost = container.offsetLeft + container.clientWidth;
-    if (event.clientX > container.offsetLeft & event.clientX < rightMost) {
-
-        mouse.x = (((event.clientX - container.offsetLeft) / container.clientWidth));
-        console.log(mouse.x);
-    }
-    var bottomMost = container.offsetTop + container.clientHeight;
-
-    if (event.clientY > container.offsetTop & event.clientY < bottomMost) {
-        mouse.y = (((container.clientHeight - (event.clientY - container.offsetTop)) / container.clientHeight));
-        console.log(mouse.y);
-    }
-
-    //
-
-    raycaster.setFromCamera(mouse, camera);
-    var intersects = raycaster.intersectObjects(scene.children, true);
-    for (var i = 0; i < intersects.length; i++) {
-        console.log(intersects[i]);
-    }
-
-    event.preventDefault();
-
-
 }
 
 
