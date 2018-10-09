@@ -27,6 +27,12 @@ function loadModelOntoPage(jsonObject) {
 
 
 function init(gltfFile, shadowPrint) {
+    window.addEventListener('resize', onWindowResize, false);
+
+    window.addEventListener('mousedown', onMouseDown, false);
+
+    window.addEventListener('mouseup', onMouseUp, false);
+
 
     // getting the container
     container = document.getElementById(connectingElement);
@@ -86,7 +92,7 @@ function init(gltfFile, shadowPrint) {
 
     // set the position of the image mesh in the x,y,z dimensions
     print.position.set(0, -2, 0);
-    print.scale.set(1.1,1.1,1.1);
+    print.scale.set(1.1, 1.1, 1.1);
     print.rotation.x = (Math.PI / 2) * 3;
     print.rotation.z = (Math.PI / 2);
 
@@ -120,11 +126,11 @@ function init(gltfFile, shadowPrint) {
     // animate();
 }
 
-window.addEventListener('resize', onWindowResize, false);
+// window.addEventListener('resize', onWindowResize, false);
 
-window.addEventListener('mousedown', onMouseDown, false);
+// window.addEventListener('mousedown', onMouseDown, false);
 
-window.addEventListener('mouseup', onMouseUp, false);
+// window.addEventListener('mouseup', onMouseUp, false);
 
 
 
@@ -228,7 +234,7 @@ function Float(speed, model, print, distance, camera, controls) {
         aniPrintScaleX = print.scale.x,
         aniPrintScaleY = print.scale.y,
         aniReturnToZero = false;
-        isCounting = -1;
+    isCounting = -1;
 
 
     var aniPrintDirection = 1;
@@ -267,7 +273,7 @@ function Float(speed, model, print, distance, camera, controls) {
             aniPrint.rotation.z += 0.05;
         }
     }
-    this.isRotating = function(){
+    this.isRotating = function () {
         return aniRotating;
     }
     this.startFloat = function () {
@@ -296,11 +302,11 @@ function Float(speed, model, print, distance, camera, controls) {
         // model.position.y = this.calcFloat(aniFloatProgress);
 
         // console.log(this.calcFloat(aniFloatProgress));
-        print.scale.x = aniPrintScaleX + (0.2* this.calcFloat(aniFloatProgress) * aniFloatDirection);
-        print.scale.y = aniPrintScaleY + (0.2* this.calcFloat(aniFloatProgress) * aniFloatDirection);
+        print.scale.x = aniPrintScaleX + (0.2 * this.calcFloat(aniFloatProgress) * aniFloatDirection);
+        print.scale.y = aniPrintScaleY + (0.2 * this.calcFloat(aniFloatProgress) * aniFloatDirection);
         aniFloatProgress += (aniFloatSpeed * aniFloatDirection);
     }
-    this.float2 =function () {
+    this.float2 = function () {
         console.log(this.calcFloat(aniFloatProgress));
         model.position.y = this.calcFloat(aniFloatProgress);
         aniFloatProgress += (aniFloatSpeed * aniFloatDirection);
@@ -310,27 +316,27 @@ function Float(speed, model, print, distance, camera, controls) {
         var xFinished = false;
         var yFinished = false;
         var zFinished = false;
-        if (Math.abs(aniICP.position.x - aniCamera.position.x) < 0.1){
+        if (Math.abs(aniICP.position.x - aniCamera.position.x) < 0.1) {
             // console.log("xfinished");
             aniCamera.position.x = aniICP.position.x;
             xFinished = true;
-        } else if ((aniICP.position.x - aniCamera.position.x) < 0 ) {
+        } else if ((aniICP.position.x - aniCamera.position.x) < 0) {
             aniCamera.position.x -= aniReturnSpeed;
         } else {
             aniCamera.position.x += aniReturnSpeed;
         }
-        if (Math.abs(aniICP.position.y - aniCamera.position.y) < 0.1){
+        if (Math.abs(aniICP.position.y - aniCamera.position.y) < 0.1) {
             aniCamera.position.y = aniICP.position.y;
             yFinished = true;
-        } else if ((aniICP.position.y - aniCamera.position.y) < 0 ) {
+        } else if ((aniICP.position.y - aniCamera.position.y) < 0) {
             aniCamera.position.y -= aniReturnSpeed;
         } else {
             aniCamera.position.y += aniReturnSpeed;
         }
-        if (Math.abs(aniICP.position.z - aniCamera.position.z) < 0.1){
+        if (Math.abs(aniICP.position.z - aniCamera.position.z) < 0.1) {
             aniCamera.position.z = aniICP.position.z;
             zFinished = true;
-        } else if ((aniICP.position.z - aniCamera.position.z) < 0 ) {
+        } else if ((aniICP.position.z - aniCamera.position.z) < 0) {
             aniCamera.position.z -= aniReturnSpeed;
         } else {
             aniCamera.position.z += aniReturnSpeed;
