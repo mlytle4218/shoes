@@ -19,7 +19,10 @@ var initialCameraPosition;
 var returnWaitTime = 60;
 var printScale = 1.5;
 var modelLoaded = false;
-var modelInitialPosition = new THREE.Vector3(0, 5, 0);
+var modelInitialPosition = new THREE.Vector3(0, -1, 0);
+
+
+const cubeCamera = new THREE.CubeCamera(1, 100000, 128);
 
 
 
@@ -59,27 +62,29 @@ function init(gltfFile, shadowPrint) {
 
 
 
-    var ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
-    // scene.add(ambientLight);
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
 
 
-    var pointLight = new THREE.PointLight(0xffffff, 1, 100, 1);
+    var pointLight = new THREE.PointLight(0xffffff, .6, 100, 1);
     pointLight.position.set(0, 0, -1);
     camera.add(pointLight);
     // var pointLightHelper = new THREE.PointLightHelper(pointLight, 1);
     // scene.add(pointLightHelper);
 
 
-    var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    // directionalLight.position.set(0, 0, 1).normalize();
-    directionalLight.position.set(0, 10, -10);
-    // var helper = new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000);
-    // scene.add(helper)
-    camera.add(directionalLight);
+    // var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    // // directionalLight.position.set(0, 0, 1).normalize();
+    // directionalLight.position.set(0, 10, -10);
+    // // var helper = new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000);
+    // // scene.add(helper)
+    // camera.add(directionalLight);
 
 
     scene.add(camera);
 
+
+    scene.add(cubeCamera);
 
     // light = new THREE.AmbientLight(0xcccccc, 0.4);
     // // light.position.set(1,1,0).normalize();
@@ -248,9 +253,20 @@ function init(gltfFile, shadowPrint) {
     gltfLoader.load(gltfFile, function (gltf) {
         model = gltf.scene;
         model.rotation.y = -Math.PI / 2;
-        var scale = 0.4;
+        var scale = 0.8;
         model.scale.set(scale, scale, scale);
         model.position.copy(modelInitialPosition);
+        var envMap = new THREE.CubeTextureLoader().load([
+            'pics/posx.jpg', 'pics/negx.jpg',
+            'pics/posy.jpg', 'pics/negy.jpg',
+            'pics/posz.jpg', 'pics/negz.jpg'
+        ]);
+
+
+
+        // model.children[0].material.envMap = cubeCamera.renderTarget.texture;
+        // scene.background = envMap;
+
         scene.add(model);
         scene.add(print);
         modelLoaded = true;
@@ -269,6 +285,29 @@ function init(gltfFile, shadowPrint) {
     }, function (error) {
         console.error(error);
     });
+
+    // var onProgress = console.log;
+    // var onError = console.error;
+    // new THREE.MTLLoader()
+    //     .setPath('models/')
+    //     .load('onFire.mtl', function (materials) {
+    //         console.log(materials);
+
+    //         materials.preload();
+
+    //         new THREE.OBJLoader()
+    //             .setMaterials(materials)
+    //             .setPath('models/')
+    //             .load('onFire.obj', function (object) {
+    //                 model = object;
+
+    //                 // object.position.y = -95;
+    //                 scene.add(model);
+
+    //             }, onProgress, onError);
+
+    //     });
+
 
 
     // var fbxLoader = new THREE.FBXLoader();
@@ -352,8 +391,13 @@ function init(gltfFile, shadowPrint) {
     });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.gammaOutput = false;
+    renderer.gammaInput = true;
     renderer.gammaOutput = true;
     container.appendChild(renderer.domElement);
+
+
+
 
 
     animate();
@@ -385,6 +429,8 @@ function animate() {
     if (modelLoaded) {
         floatAnimation.tick();
     }
+
+    // cubeCamera.update(renderer, scene);
     // floatAnimation.tick();
     // console.log(camera);
     renderer.render(scene, camera);
