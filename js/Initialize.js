@@ -237,14 +237,11 @@ function init(gltfFile, shadowPrint) {
     var material2 = new THREE.MeshBasicMaterial({
         color: 0xcccccc
     });
+    cube.position.y = 5;
     cube2 = new THREE.Mesh(geometry, material2);
-    // cube2.position.x = -(cube.geometry.parameters.width/2);
     cube2.position.z = -1;
+    cube2.position.y = 5;
     scene.add(cube2);
-
-    // 
-    // cube.position.x = -11.5;
-    // cube.position.x = -(1 - cube.scale.x) * (cube.geometry.parameters.width/2)
     scene.add(cube);
 
     var gltfLoader = new THREE.GLTFLoader();
@@ -261,7 +258,7 @@ function init(gltfFile, shadowPrint) {
             'pics/posy.jpg', 'pics/negy.jpg',
             'pics/posz.jpg', 'pics/negz.jpg'
         ]);
-        model.material.roughness = 0.7;
+        model.children[0].material.roughness = 0.7;
 
 
 
