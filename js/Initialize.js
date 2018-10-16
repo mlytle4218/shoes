@@ -19,7 +19,7 @@ var initialCameraPosition;
 var returnWaitTime = 60;
 var printScale = 1.5;
 var modelLoaded = false;
-var modelInitialPosition = new THREE.Vector3(0,5,0);
+var modelInitialPosition = new THREE.Vector3(0, 5, 0);
 
 
 
@@ -52,11 +52,32 @@ function init(gltfFile, shadowPrint) {
     scene.background = color;
 
 
+
+
+
+
+
+
+
     var ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
-    scene.add(ambientLight);
-    var directionalLight = new THREE.DirectionalLight(0xdddddd, 1);
-    directionalLight.position.set(1, 1, 0).normalize();
+    // scene.add(ambientLight);
+
+
+    var pointLight = new THREE.PointLight(0xffffff, 1, 100, 1);
+    pointLight.position.set(0, 0, -1);
+    camera.add(pointLight);
+    // var pointLightHelper = new THREE.PointLightHelper(pointLight, 1);
+    // scene.add(pointLightHelper);
+
+
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    // directionalLight.position.set(0, 0, 1).normalize();
+    directionalLight.position.set(0, 10, -10);
+    // var helper = new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000);
+    // scene.add(helper)
     camera.add(directionalLight);
+
+
     scene.add(camera);
 
 
@@ -202,7 +223,7 @@ function init(gltfFile, shadowPrint) {
     //     animate();
     // });
 
-    var geometry = new THREE.BoxGeometry(33,3,3);
+    var geometry = new THREE.BoxGeometry(33, 3, 3);
     var material = new THREE.MeshBasicMaterial({
         color: 0xff0000
     });
@@ -241,9 +262,9 @@ function init(gltfFile, shadowPrint) {
         floatAnimation.startRotate();
         floatAnimation.startFloat();
     }, function (progress) {
-        pro = progress.loaded/progress.total;
+        pro = progress.loaded / progress.total;
         cube.scale.x = pro;
-        cube.position.x = -(1 - cube.scale.x) * (cube.geometry.parameters.width/2);
+        cube.position.x = -(1 - cube.scale.x) * (cube.geometry.parameters.width / 2);
         // console.log(progress.loaded/progress.total);
     }, function (error) {
         console.error(error);
@@ -371,7 +392,7 @@ function animate() {
 
 // function to register mouse location on click
 function onMouseDown(event) {
-    if (inContainer(event)){
+    if (inContainer(event)) {
         // console.log(controls);
         floatAnimation.stopFloat();
         // console.log(floatAnimation.isRotating());
@@ -511,7 +532,7 @@ function Float(speed, model, print, distance, camera, controls) {
         aniFloatProgress += (aniFloatSpeed * aniFloatDirection);
     }
     this.returnToZero = function () {
-        console.log("returnToZero");
+        // console.log("returnToZero");
 
         // // console.log(aniICP.position.x - aniCamera.position.x);
         // var xFinished = false;
