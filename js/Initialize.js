@@ -19,6 +19,7 @@ var initialCameraPosition;
 var returnWaitTime = 60;
 var printScale = 1;
 var modelLoaded = false;
+var modelInitialPosition = new THREE.Vector3(0,5,0);
 
 
 
@@ -228,6 +229,7 @@ function init(gltfFile, shadowPrint) {
         model.rotation.y = -Math.PI / 2;
         var scale = 0.25;
         model.scale.set(scale, scale, scale);
+        model.position.copy(modelInitialPosition);
         scene.add(model);
         scene.add(print);
         modelLoaded = true;
@@ -300,7 +302,7 @@ function init(gltfFile, shadowPrint) {
     print = new THREE.Mesh(geometry, material);
 
     // set the position of the image mesh in the x,y,z dimensions
-    print.position.set(0, -10, 0);
+    print.position.set(0, -5, 0);
     print.scale.set(printScale, printScale, printScale);
     print.rotation.x = (Math.PI / 2) * 3;
     print.rotation.z = (Math.PI / 2);
@@ -376,9 +378,10 @@ function onMouseDown(event) {
         if (!floatAnimation.isRotating()) {
             floatAnimation.stopFloat();
             keepAnimating = false;
-            model.position.x = 0;
-            model.position.y = 0;
-            model.position.z = 0;
+            model.position.copy(modelInitialPosition);
+            // model.position.x = 0;
+            // model.position.y = 0;
+            // model.position.z = 0;
             scene.remove(print);
         }
 
@@ -494,7 +497,7 @@ function Float(speed, model, print, distance, camera, controls) {
         }
         // console.log(this.calcFloat(aniFloatProgress));
 
-        model.position.y = aniFloatSign * this.calcFloat(aniFloatProgress);
+        model.position.y = aniFloatSign * this.calcFloat(aniFloatProgress) + modelInitialPosition.y;
         // model.position.y = this.calcFloat(aniFloatProgress);
 
         // console.log(this.calcFloat(aniFloatProgress));
