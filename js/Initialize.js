@@ -17,7 +17,7 @@ var floatSpeed = 0.015625;
 var floatDistance = 1;
 var initialCameraPosition;
 var returnWaitTime = 60;
-var printScale = 1;
+var printScale = 1.5;
 var modelLoaded = false;
 var modelInitialPosition = new THREE.Vector3(0,5,0);
 
@@ -227,7 +227,7 @@ function init(gltfFile, shadowPrint) {
     gltfLoader.load(gltfFile, function (gltf) {
         model = gltf.scene;
         model.rotation.y = -Math.PI / 2;
-        var scale = 0.25;
+        var scale = 0.4;
         model.scale.set(scale, scale, scale);
         model.position.copy(modelInitialPosition);
         scene.add(model);
@@ -302,7 +302,7 @@ function init(gltfFile, shadowPrint) {
     print = new THREE.Mesh(geometry, material);
 
     // set the position of the image mesh in the x,y,z dimensions
-    print.position.set(0, -5, 0);
+    print.position.set(0, -8, 0);
     print.scale.set(printScale, printScale, printScale);
     print.rotation.x = (Math.PI / 2) * 3;
     print.rotation.z = (Math.PI / 2);
