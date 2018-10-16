@@ -261,6 +261,7 @@ function init(gltfFile, shadowPrint) {
             'pics/posy.jpg', 'pics/negy.jpg',
             'pics/posz.jpg', 'pics/negz.jpg'
         ]);
+        model.material.roughness = 0.7;
 
 
 
