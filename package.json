@@ -1,0 +1,26 @@
+{
+  "name": "shoes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mlytle4218/shoes.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mlytle4218/shoes/issues"
+  },
+  "homepage": "https://github.com/mlytle4218/shoes#readme",
+  "devDependencies": {
+    "grunt": "^1.0.3"
+  },
+  "dependencies": {
+    "grunt-contrib-uglify": "^4.0.0",
+    "grunt-contrib-watch": "^1.1.0"
+  }
+}

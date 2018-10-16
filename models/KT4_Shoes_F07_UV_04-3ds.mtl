@@ -1,0 +1,24 @@
+#  ==========================================================================
+#  Wavefront Material file
+#  Exported by Red-i Productions' "Riptide Pro"
+#  (a commercial plugin for Cinema 4D PC & Mac, R10 or later)
+#  
+#  Red-i Productions
+#  http://skinprops.com
+#  
+#  ==========================================================================
+
+newmtl KT4_fire
+
+Ns 100.000
+d 1.00000
+illum 1
+Kd 1.000000 1.000000 1.000000
+Ka 0.000000 0.000000 0.000000
+Ks 1.000000 1.000000 1.000000
+Ka 0.000000e+0 0.000000e+0 0.000000e+0
+
+map_Ks KT4_OnFire_01_Roughness.jpg
+map_Kd KT4_OnFire_01_diffuse.jpg
+bump KT4_OnFire_01_bump.jpg
+map_bump KT4_OnFire_01_NML.jpg

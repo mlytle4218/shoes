@@ -46,29 +46,16 @@
     <script src="js/three.js"></script>
 
     <script src="js/OrbitControls.js"></script>
-    <script src="js/MTLLoader.js"></script>
     <script src="js/GLTFLoader.js"></script>
-    <script src="js/OBJLoader.js"></script>
-
     <script src="js/Detector.js"></script>
     <script src="js/Initialize.js"></script>
     <!-- <script src="js/threesixty_initialize.js"></script> -->
-    <!-- <script src="js/DRACOLoader.js"></script> -->
-
-    <script>
-        // var make = {
-        //     files: [
-        //         {"obj":"models/KT4_Shoes_F02_full.obj"},
-        //         {"mtl":"models/KT4_Shoes_F02_full.mtl"},
-        //         {"shadow":"pics/print.png"}
-        //     ]
-        // }
+    <script>]
         var make ={
-            "gltf":"models/model.gltf",
+            "gltf":"models/out.gltf",
             "shadow":"pics/print.png"
         }
         if (Detector.webgl) {
-            // loadModelOntoPage('models/KT4_Shoes_F02_full.obj', 'pics/print.png');
             loadModelOntoPage(make);
         } else {
             var warning = Detector.getWebGLErrorMessage();

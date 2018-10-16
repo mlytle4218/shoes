@@ -10,15 +10,16 @@ var keepAnimating = true;
 var floatProgress = 0;
 var skyColor = 0xffffff;
 var connectingElement = 'product-canvas';
-var cameraDistance = 500;
+var cameraDistance = 50;
 var floatAnimation;
 var floatRadius = 10;
 var floatSpeed = 0.015625;
-// var floatSpeed = 0.0078125;
-// var floatSpeed = 0.125
 var floatDistance = 1;
 var initialCameraPosition;
-var returnWaitTime = 120;
+var returnWaitTime = 60;
+var printScale = 1;
+var modelLoaded = false;
+
 
 
 function loadModelOntoPage(jsonObject) {
@@ -38,38 +39,246 @@ function init(gltfFile, shadowPrint) {
     container = document.getElementById(connectingElement);
 
     // setting up the camera - this position just looks a little better to me
-    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 50);
+    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 100);
     camera.position.set(0, 0, cameraDistance);
+
+
 
 
     // setting the scene
     scene = new THREE.Scene();
-    var color = new THREE.Color(0xdddddd);
+    var color = new THREE.Color(0xffffff);
     scene.background = color;
 
-    light = new THREE.AmbientLight(skyColor);
-    light.position.set(0, 10, 0);
-    scene.add(light);
+
+    var ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
+    scene.add(ambientLight);
+    var directionalLight = new THREE.DirectionalLight(0xdddddd, 1);
+    directionalLight.position.set(1, 1, 0).normalize();
+    camera.add(directionalLight);
+    scene.add(camera);
+
+
+    // light = new THREE.AmbientLight(0xcccccc, 0.4);
+    // // light.position.set(1,1,0).normalize();
+    // scene.add(light);
+
+    // // light
+    // var light2 = new THREE.PointLight(0xffffff, 1);
+    // var helper = new THREE.PointLightHelper(light2, 1.0, 0xff0000);
+    // scene.add(helper);
+    // camera.add(light2);
+
+    // flashlight = new THREE.SpotLight(0xffffff, 4, 100);
+    // scene.add(flashlight);
+    // flashlight.position.set(0, 0, 50);
+    // flashlight.target = camera;
+
+    // var spotLightHelper = new THREE.SpotLightHelper(flashlight);
+    // scene.add(spotLightHelper);
+
+
+    // // adding a general ambient light 
+    // light = new THREE.HemisphereLight(0xffffff, 0xffffff);
+    // light.position.set(0, 1, 0);
+    // scene.add(light);
+    // var helper = new THREE.HemisphereLightHelper(light, 50);
+
+    // scene.add(helper);
+
+    // var intens = 1;
+
+    // var ten = 20;
+
+    // // White directional light at half intensity shining from the top.
+    // directionalLight = new THREE.PointLight(0xffffff, intens);
+    // var d = 1;
+    // var positionMatrix1 = [1,1,-1,-1];
+    // var positionMatrix2 = [1,-1,1,-1];
+    // for (var i = 0; i < 1; i++ ){
+    //     for (var j = 0; j < 4; j++){
+    //         var temp = directionalLight.clone();
+    //         temp.position.x = d * ten;
+    //         temp.position.y = positionMatrix1[j] * ten;
+    //         temp.position.z = positionMatrix2[j] * ten;
+    //         var helper = new THREE.PointLightHelper(temp, 5);
+    //         scene.add(temp);
+    //         scene.add(helper);
+    //     }
+    //     d = -1;
+    // }
+
+
+
+    // directionalLight.position.set(0, ten, -ten);
+    // scene.add(directionalLight);
+
+    // var helper = new THREE.PointLightHelper(directionalLight, 5);
+
+    // scene.add(helper);
+
+    // // White directional light at half intensity shining from the top.
+    // directionalLight2 = new THREE.PointLight(0xffffff, intens);
+    // directionalLight2.position.set(0, ten, ten);
+    // scene.add(directionalLight2);
+
+    // var helper2 = new THREE.PointLightHelper(directionalLight2, 5);
+
+    // scene.add(helper2);
+
+    // directionalLight3 = new THREE.PointLight(0xffffff, intens);
+    // directionalLight3.position.set(0,-ten, ten);
+    // scene.add(directionalLight3);
+
+    // var helper3 = new THREE.PointLightHelper(directionalLight3, 5);
+    // scene.add(helper3);
+
+    // directionalLight4 = new THREE.PointLight(0xffffff, intens);
+    // directionalLight4.position.set(0,-ten, -ten);
+    // scene.add(directionalLight4);
+
+    // var helper4 = new THREE.PointLightHelper(directionalLight4, 5);
+    // scene.add(helper4);
+
+    // var spotLight = new THREE.SpotLight(0xffffff);
+    // spotLight.position.set(0, 100, 100);
+
+    // spotLight.castShadow = true;
+
+    // spotLight.shadow.mapSize.width = 1024;
+    // spotLight.shadow.mapSize.height = 1024;
+
+    // spotLight.shadow.camera.near = 500;
+    // spotLight.shadow.camera.far = 4000;
+    // spotLight.shadow.camera.fov = 30;
+
+    // scene.add(spotLight);
+
+    // var spotLightHelper = new THREE.SpotLightHelper(spotLight);
+    // scene.add(spotLightHelper);
+
+    // var SpotLight2 = new THREE.SpotLight(0xffffff);
+    // SpotLight2.position.set(0, -100, 100);
+
+    // SpotLight2.castShadow = true;
+
+    // SpotLight2.shadow.mapSize.width = 1024;
+    // SpotLight2.shadow.mapSize.height = 1024;
+
+    // SpotLight2.shadow.camera.near = 500;
+    // SpotLight2.shadow.camera.far = 4000;
+    // SpotLight2.shadow.camera.fov = 30;
+
+    // scene.add(SpotLight2);
+
+    // var SpotLightHelper2 = new THREE.SpotLightHelper(SpotLight2);
+    // scene.add(SpotLightHelper2);
+
+    // var textMaterial = new THREE.MeshLambertMaterial({
+    //     color: 0xff0000
+    // });
+    // var fontLoader = new THREE.FontLoader();
+    // fontLoader.load("fonts/OpenSans-Bold.json", function (fnt) {
+    //     var textGeometry = new THREE.TextGeometry("Loading...", {
+    //         font: fnt,
+    //         size: 5,
+    //         height: 2,
+    //         curveSegments: 10,
+    //         bevelThickness: 1,
+    //         bevelSize: 0.3,
+    //         bevelSegments: 3,
+    //         bevelEnabled: true
+    //     });
+    //     textGeometry.computeBoundingBox();
+    //     textGeometry.computeVertexNormals();
+
+    //     text = new THREE.Mesh(textGeometry, textMaterial);
+    //     text.position.x = -textGeometry.boundingBox.max.x / 2;
+    //     text.position.y = textGeometry.boundingBox.max.y / 2;
+    //     console.log(text.position.x);
+    //     console.log(text.position.y);
+    //     scene.add(text);
+    //     animate();
+    // });
+
+    var geometry = new THREE.BoxGeometry(33,3,3);
+    var material = new THREE.MeshBasicMaterial({
+        color: 0xff0000
+    });
+    cube = new THREE.Mesh(geometry, material);
+    cube.scale.x = 0.0001;
+    var material2 = new THREE.MeshBasicMaterial({
+        color: 0xcccccc
+    });
+    cube2 = new THREE.Mesh(geometry, material2);
+    // cube2.position.x = -(cube.geometry.parameters.width/2);
+    cube2.position.z = -1;
+    scene.add(cube2);
+
+    // 
+    // cube.position.x = -11.5;
+    // cube.position.x = -(1 - cube.scale.x) * (cube.geometry.parameters.width/2)
+    scene.add(cube);
 
     var gltfLoader = new THREE.GLTFLoader();
-    var progress;// = console.log;
+    var progress; // = console.log;
+
     gltfLoader.load(gltfFile, function (gltf) {
         model = gltf.scene;
         model.rotation.y = -Math.PI / 2;
+        var scale = 0.25;
+        model.scale.set(scale, scale, scale);
         scene.add(model);
         scene.add(print);
         modelLoaded = true;
+        scene.remove(cube);
+        scene.remove(cube2);
 
         floatAnimation = new Float(floatSpeed, model, print, floatDistance, camera, controls);
-        animate();
-        // setTimeout(function() {
-        //     rotateOnce(model);
-        // }, 100);
+        // animate();
         floatAnimation.startRotate();
         floatAnimation.startFloat();
-    }, progress, function (error) {
+    }, function (progress) {
+        pro = progress.loaded/progress.total;
+        cube.scale.x = pro;
+        cube.position.x = -(1 - cube.scale.x) * (cube.geometry.parameters.width/2);
+        // console.log(progress.loaded/progress.total);
+    }, function (error) {
         console.error(error);
     });
+
+
+    // var fbxLoader = new THREE.FBXLoader();
+    // var progress = console.log;
+    // fbxLoader.load(gltfFile, function (fbx) {
+    //     model = fbx;
+    //     // model.rotation.y = -Math.PI / 2;
+    //     var scale = 0.5;
+    //     model.scale.set(scale,scale,scale);
+    //     scene.add(model);
+    //     scene.add(print);
+    //     // modelLoaded = true;
+
+    //     floatAnimation = new Float(floatSpeed, model, print, floatDistance, camera, controls);
+    //     animate();
+    //     floatAnimation.startRotate();
+    //     floatAnimation.startFloat();
+    // }, progress, function (error) {
+    //     console.error(error);
+    // });
+
+
+    // var objLoader = new THREE.OBJLoader();
+    // var progress = console.log;
+    // objLoader.load(gltfFile, function(obj){
+    //     model = obj;
+    //     scene.add(model.children[0]);
+    //     scene.add(print);
+    //     floatAnimation = new Float(floatSpeed, model, print, floatDistance, camera, controls);
+    //     animate();
+    // },progress , function (error) {
+    //     console.error(error);
+    // });
 
 
 
@@ -91,8 +300,8 @@ function init(gltfFile, shadowPrint) {
     print = new THREE.Mesh(geometry, material);
 
     // set the position of the image mesh in the x,y,z dimensions
-    print.position.set(0, -2, 0);
-    print.scale.set(1.1, 1.1, 1.1);
+    print.position.set(0, -10, 0);
+    print.scale.set(printScale, printScale, printScale);
     print.rotation.x = (Math.PI / 2) * 3;
     print.rotation.z = (Math.PI / 2);
 
@@ -106,9 +315,10 @@ function init(gltfFile, shadowPrint) {
     controls = new THREE.OrbitControls(camera, document.getElementById(connectingElement));
     controls.target.set(0, 5, 0);
     // the max and min zoom here
-    controls.maxDistance = 40;
+    controls.maxDistance = cameraDistance;
     controls.minDistance = 10;
     controls.update();
+
 
 
 
@@ -123,8 +333,9 @@ function init(gltfFile, shadowPrint) {
     container.appendChild(renderer.domElement);
 
 
-    // animate();
+    animate();
 }
+
 
 // window.addEventListener('resize', onWindowResize, false);
 
@@ -148,23 +359,29 @@ function animate() {
     if (rotationDone & keepAnimating) {
         // floatAnimation.start2();
     }
-    floatAnimation.tick();
+    if (modelLoaded) {
+        floatAnimation.tick();
+    }
+    // floatAnimation.tick();
     // console.log(camera);
     renderer.render(scene, camera);
 }
 
 // function to register mouse location on click
 function onMouseDown(event) {
-    // console.log(controls);
-    floatAnimation.stopFloat();
-    // console.log(floatAnimation.isRotating());
-    if (!floatAnimation.isRotating()) {
+    if (inContainer(event)){
+        // console.log(controls);
         floatAnimation.stopFloat();
-        keepAnimating = false;
-        model.position.x = 0;
-        model.position.y = 0;
-        model.position.z = 0;
-        scene.remove(print);
+        // console.log(floatAnimation.isRotating());
+        if (!floatAnimation.isRotating()) {
+            floatAnimation.stopFloat();
+            keepAnimating = false;
+            model.position.x = 0;
+            model.position.y = 0;
+            model.position.z = 0;
+            scene.remove(print);
+        }
+
     }
 }
 
@@ -194,28 +411,6 @@ function rotateOnce(model) {
     }
 }
 
-// function float_old() {
-//     if (floatProgress >= 160) {
-//         floatProgress = 0;
-//     } else if (floatProgress < 40) {
-//         floatProgress++;
-//         model.position.y += 0.005;
-//         // print.scale.set(model.position.z, model.position.z, model.position.z);
-//     } else if (floatProgress < 80) {
-//         floatProgress++
-//         model.position.y -= 0.005;
-//     } else if (floatProgress < 120) {
-//         floatProgress++;
-//         model.position.y -= 0.005;
-//     } else if (floatProgress < 160) {
-//         floatProgress++;
-//         model.position.y += 0.005;
-//     }
-// }
-function Animate(speed, model, distance) {
-    this.tick = function () {
-    }
-}
 
 function Float(speed, model, print, distance, camera, controls) {
     var aniFloatSpeed = speed,
@@ -233,6 +428,7 @@ function Float(speed, model, print, distance, camera, controls) {
         aniCamera = camera,
         aniPrintScaleX = print.scale.x,
         aniPrintScaleY = print.scale.y,
+        aniReturnProgress = 200,
         aniReturnToZero = false;
     isCounting = -1;
 
@@ -312,41 +508,69 @@ function Float(speed, model, print, distance, camera, controls) {
         aniFloatProgress += (aniFloatSpeed * aniFloatDirection);
     }
     this.returnToZero = function () {
-        // console.log(aniICP.position.x - aniCamera.position.x);
-        var xFinished = false;
-        var yFinished = false;
-        var zFinished = false;
-        if (Math.abs(aniICP.position.x - aniCamera.position.x) < 0.1) {
-            // console.log("xfinished");
-            aniCamera.position.x = aniICP.position.x;
-            xFinished = true;
-        } else if ((aniICP.position.x - aniCamera.position.x) < 0) {
-            aniCamera.position.x -= aniReturnSpeed;
-        } else {
-            aniCamera.position.x += aniReturnSpeed;
-        }
-        if (Math.abs(aniICP.position.y - aniCamera.position.y) < 0.1) {
-            aniCamera.position.y = aniICP.position.y;
-            yFinished = true;
-        } else if ((aniICP.position.y - aniCamera.position.y) < 0) {
-            aniCamera.position.y -= aniReturnSpeed;
-        } else {
-            aniCamera.position.y += aniReturnSpeed;
-        }
-        if (Math.abs(aniICP.position.z - aniCamera.position.z) < 0.1) {
-            aniCamera.position.z = aniICP.position.z;
-            zFinished = true;
-        } else if ((aniICP.position.z - aniCamera.position.z) < 0) {
-            aniCamera.position.z -= aniReturnSpeed;
-        } else {
-            aniCamera.position.z += aniReturnSpeed;
-        }
-        aniCamera.lookAt(aniICP.center);
-        if (xFinished & yFinished & zFinished) {
-            isCounting = -1;
-            this.startFloat();
+        console.log("returnToZero");
+
+        // // console.log(aniICP.position.x - aniCamera.position.x);
+        // var xFinished = false;
+        // var yFinished = false;
+        // var zFinished = false;
+        // if (Math.abs(aniICP.position.x - aniCamera.position.x) < 0.1) {
+        //     // console.log("xfinished");
+        //     aniCamera.position.x = aniICP.position.x;
+        //     xFinished = true;
+        // } else if ((aniICP.position.x - aniCamera.position.x) < 0) {
+        //     aniCamera.position.x -= aniReturnSpeed;
+        // } else {
+        //     aniCamera.position.x += aniReturnSpeed;
+        // }
+        // if (Math.abs(aniICP.position.y - aniCamera.position.y) < 0.1) {
+        //     aniCamera.position.y = aniICP.position.y;
+        //     yFinished = true;
+        // } else if ((aniICP.position.y - aniCamera.position.y) < 0) {
+        //     aniCamera.position.y -= aniReturnSpeed;
+        // } else {
+        //     aniCamera.position.y += aniReturnSpeed;
+        // }
+        // if (Math.abs(aniICP.position.z - aniCamera.position.z) < 0.1) {
+        //     aniCamera.position.z = aniICP.position.z;
+        //     zFinished = true;
+        // } else if ((aniICP.position.z - aniCamera.position.z) < 0) {
+        //     aniCamera.position.z -= aniReturnSpeed;
+        // } else {
+        //     aniCamera.position.z += aniReturnSpeed;
+        // }
+        // aniCamera.lookAt(aniICP.center);
+        // if (xFinished & yFinished & zFinished) {
+        //     isCounting = -1;
+        //     this.startFloat();
+        // }
+
+    }
+
+    function setArc3D(pointStart, pointEnd, smoothness, color, clockWise) {
+        // calculate a normal ( taken from Geometry().computeFaceNormals() )
+        var cb = new THREE.Vector3(),
+            ab = new THREE.Vector3(),
+            normal = new THREE.Vector3();
+        cb.subVectors(new THREE.Vector3(), pointEnd);
+        ab.subVectors(pointStart, pointEnd);
+        cb.cross(ab);
+        normal.copy(cb).normalize();
+
+
+        var angle = pointStart.angleTo(pointEnd); // get the angle between vectors
+        if (clockWise) angle = angle - Math.PI * 2; // if clockWise is true, then we'll go the longest path
+        var angleDelta = angle / (smoothness - 1); // increment
+
+        var geometry = new THREE.Geometry();
+        for (var i = 0; i < smoothness; i++) {
+            geometry.vertices.push(pointStart.clone().applyAxisAngle(normal, angleDelta * i)) // this is the key operation
         }
 
+        var arc = new THREE.Line(geometry, new THREE.LineBasicMaterial({
+            color: color
+        }));
+        return arc;
     }
     this.startReturnToZero = function () {
         aniReturnToZero = true;
@@ -361,4 +585,13 @@ function Float(speed, model, print, distance, camera, controls) {
         isCounting = -1;
     }
 
+}
+
+function inContainer(event) {
+    if (event.clientX > container.offsetLeft & event.clientX < container.offsetLeft + container.clientWidth) {
+        if (event.clientY > container.offsetTop & event.clientY < container.offsetTop + container.clientHeight) {
+            return true;
+        }
+    }
+    return false;
 }
