@@ -320,8 +320,6 @@ function AnimateModel() {
         if (this.calcFloat(AMFloatProgress) === 0) {
             AMFloatSign = -AMFloatSign;
         }
-        console.log(AMmodel.position);
-        console.log(AMFloatSign * this.calcFloat(AMFloatProgress)  + modelInitialPosition.y);
         AMmodel.position.y = AMFloatSign * this.calcFloat(AMFloatProgress) -1 + modelInitialPosition.y;
         AMFloatProgress += (AMFloatSpeed * AMFloatDirection);
     }
