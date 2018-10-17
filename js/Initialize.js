@@ -27,11 +27,11 @@ const cubeCamera = new THREE.CubeCamera(1, 100000, 128);
 
 
 function loadModelOntoPage(jsonObject) {
-    init(jsonObject.gltf, jsonObject.shadow);
+    init(jsonObject.gltf, jsonObject.shadow, jsonObject.gltf2);
 }
 
 
-function init(gltfFile, shadowPrint) {
+function init(gltfFile, shadowPrint, shiny) {
     window.addEventListener('resize', onWindowResize, false);
 
     window.addEventListener('mousedown', onMouseDown, false);
@@ -66,11 +66,24 @@ function init(gltfFile, shadowPrint) {
     scene.add(ambientLight);
 
 
-    var pointLight = new THREE.PointLight(0xffffff, .6, 100, 1);
-    pointLight.position.set(0, 0, -1);
+    var pointLight = new THREE.PointLight(0x999999, 0.05, 100, 1);
+    pointLight.position.set(0, 0, -1).normalize();
     camera.add(pointLight);
     // var pointLightHelper = new THREE.PointLightHelper(pointLight, 1);
     // scene.add(pointLightHelper);
+
+    // var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    var directionalLight = new THREE.SpotLight( 0xffffff );
+    directionalLight.position.set(0, 15, 0);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+
+    //Set up shadow properties for the light
+    directionalLight.shadow.mapSize.width = 512; // default
+    directionalLight.shadow.mapSize.height = 512; // default
+    directionalLight.shadow.camera.near = 0.5; // default
+    directionalLight.shadow.camera.far = 500; // default
+    directionalLight.shadow.camera = new THREE.OrthographicCamera( -75, 75, 75, -75, 0.5, 1000 ); 
 
 
     // var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -85,6 +98,27 @@ function init(gltfFile, shadowPrint) {
 
 
     scene.add(cubeCamera);
+
+
+
+    //Create a plane that receives shadows (but does not cast them)
+    var planeGeometry = new THREE.PlaneBufferGeometry(50, 50, 32, 32);
+    // var planeMaterial = new THREE.MeshStandardMaterial({
+    //     color: 0xffffff
+    // });
+
+    var planeMaterial =  new THREE.ShadowMaterial({opacity: 0.2});
+
+    var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    console.log(-(Math.PI/18)*10);
+    plane.rotation.x = -(Math.PI / 36) * 17;
+    plane.position.y = -4;
+    plane.receiveShadow = true;
+    scene.add(plane);
+
+    //Create a helper for the shadow camera (optional)
+    // var helper = new THREE.CameraHelper(directionalLight.shadow.camera);
+    // scene.add(helper);
 
     // light = new THREE.AmbientLight(0xcccccc, 0.4);
     // // light.position.set(1,1,0).normalize();
@@ -258,7 +292,13 @@ function init(gltfFile, shadowPrint) {
             'pics/posy.jpg', 'pics/negy.jpg',
             'pics/posz.jpg', 'pics/negz.jpg'
         ]);
-        model.children[0].material.roughness = 0.7;
+        model.children[0].material.roughness = 0.8;
+        // model.castShadow = true;
+        model.traverse( function ( child ) {
+            if ( child instanceof THREE.Mesh ) {
+                child.castShadow = true;
+            }
+        });
 
 
 
@@ -280,6 +320,45 @@ function init(gltfFile, shadowPrint) {
         cube.scale.x = pro;
         cube.position.x = -(1 - cube.scale.x) * (cube.geometry.parameters.width / 2);
         // console.log(progress.loaded/progress.total);
+    }, function (error) {
+        console.error(error);
+    });
+
+    gltfLoader.load(shiny, function (gltf) {
+        var model2 = gltf.scene;
+        // model2.rotation.y = -Math.PI / 2;
+        var scale = 1;
+        model2.scale.set(scale, scale, scale);
+        // model2.position.copy(modelInitialPosition);
+        model2.children[0].material.roughness = 0.2;
+        // model2.castShadow =true;
+
+        model2.traverse( function ( child ) {
+            if ( child instanceof THREE.Mesh ) {
+                child.castShadow = true;
+            }
+        });
+
+
+
+        // model.children[0].material.envMap = cubeCamera.renderTarget.texture;
+        // scene.background = envMap;
+
+        model.add(model2);
+        // scene.add(print);
+        // modelLoaded = true;
+        // scene.remove(cube);
+        // scene.remove(cube2);
+
+        // floatAnimation = new Float(floatSpeed, model, print, floatDistance, camera, controls);
+        // animate();
+        // floatAnimation.startRotate();
+        // floatAnimation.startFloat();
+    }, function (progress) {
+        // pro = progress.loaded / progress.total;
+        // cube.scale.x = pro;
+        // cube.position.x = -(1 - cube.scale.x) * (cube.geometry.parameters.width / 2);
+        console.log(progress.loaded / progress.total);
     }, function (error) {
         console.error(error);
     });
@@ -392,6 +471,8 @@ function init(gltfFile, shadowPrint) {
     renderer.gammaOutput = false;
     renderer.gammaInput = true;
     renderer.gammaOutput = true;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
     container.appendChild(renderer.domElement);
 
 
@@ -438,10 +519,10 @@ function animate() {
 function onMouseDown(event) {
     if (inContainer(event)) {
         // console.log(controls);
-        floatAnimation.stopFloat();
+        // floatAnimation.stopFloat();
         // console.log(floatAnimation.isRotating());
         if (!floatAnimation.isRotating()) {
-            floatAnimation.stopFloat();
+            // floatAnimation.stopFloat();
             keepAnimating = false;
             model.position.copy(modelInitialPosition);
             // model.position.x = 0;

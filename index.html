@@ -48,21 +48,28 @@
     <script src="js/OrbitControls.js"></script>
     <script src="js/GLTFLoader.js"></script>
     <script src="js/Detector.js"></script>
-    <script src="js/Initialize.js"></script>
+    <!-- <script src="js/Initialize.js"></script> -->
+    <script src="js/Init.js"></script>
     <script src="js/dat.gui.min.js"></script>
     <script src="js/MTLLoader.js"></script>
     <script src="js/OBJLoader.js"></script>
     <!-- <script src="js/threesixty_initialize.js"></script> -->
     <script>
         var make ={
-            "gltf":"models/onFire6.gltf",
-            // "gltf":"models/makeItRain.gltf",
-            "shadow":"pics/print.png"
+            // "gltf":"models/onFire_fab.gltf",
+            // "gltf2":"models/onFire_shiny.gltf",
+            // "gltf":"models/makeItRain_fab.gltf",
+            // "gltf2":"models/makeItRain_shiny.gltf",
+            "fab":"models/veteransDay_fab.gltf",
+            "shiny":"models/veteransDay_shiny.gltf"
+            // "gltf":"models/stillWatersRunDeep_fab.gltf",
+            // "gltf2":"models/stillWatersRunDeep_shiny.gltf",
+            // "shadow":"pics/print.png"
         }
         if (Detector.webgl) {
             loadModelOntoPage(make);
         } else {
-            var warning = Detector.getWebGLErrorMessage();
+            var warning = Detector.getWebGrLErrorMessage();
             document.getElementById('canvas').appendChild(warning);
         }
     </script>

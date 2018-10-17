@@ -7,7 +7,7 @@ module.exports = function (grunt) {
                 banner: "/*! <%= grunt.template.today() %> */\n"
             },
             build: {
-                src: ["js/Initialize.js"],
+                src: ["js/Init.js"],
                 dest: "js/threesixty_initialize.js"
             }
         },
