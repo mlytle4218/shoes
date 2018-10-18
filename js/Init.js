@@ -35,6 +35,7 @@ function loadModelOntoPage(json) {
     // setting the point light that stays with the camera
     var pointLight = new THREE.PointLight(0x999999, 0.05, 100, 1);
     pointLight.position.set(0, 0, -1).normalize();
+    pointLight.castShadow = true;
     shoeCamera.add(pointLight);
 
     // setting a directional light directly over the model to light and cast shadows
@@ -59,14 +60,14 @@ function loadModelOntoPage(json) {
         opacity: 0.2
     });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.name ="shadowPlane";
+    plane.name = "shadowPlane";
     plane.receiveShadow = true;
     plane.rotation.x = -(Math.PI / 36) * 17;
     plane.position.y = -7;
     shoeScene.add(plane);
 
     // add the progress bar cubes
-    createProgress(shoeScene);
+    // createProgress(shoeScene);
 
     // ading the orbit controls - pan and zoom
     var controls = new THREE.OrbitControls(shoeCamera, shoeContainer);
@@ -100,53 +101,86 @@ function loadModelOntoPage(json) {
 
     var progresses = [0, 0];
 
-    var gltfLoader = new THREE.GLTFLoader();
+    // var gltfLoader = new THREE.GLTFLoader();
 
-    gltfLoader.load(json.fab, function (fab) {
-        fab.scene.children[0].material.roughness = 0.8;
-        fab.scene.traverse(function (child) {
-            if (child instanceof THREE.Mesh) {
-                child.castShadow = true;
-            }
-        });
+    // gltfLoader.load(json.fab, function (fab) {
+    //     fab.scene.children[0].material.roughness = 0.8;
+    //     fab.scene.traverse(function (child) {
+    //         if (child instanceof THREE.Mesh) {
+    //             child.castShadow = true;
+    //         }
+    //     });
 
-        gltfLoader.load(json.shiny, function (shiny) {
-            shiny.scene;
-            shiny.scene.children[0].material.roughness = 0.2;
-            shiny.scene.traverse(function (child) {
-                if (child instanceof THREE.Mesh) {
-                    child.castShadow = true;
-                }
-            });
-            fab.scene.rotation.y = -Math.PI / 2;
-            fab.scene.scale.set(modelScale, modelScale, modelScale);
-            fab.scene.add(shiny.scene);
-            shoeScene.add(fab.scene);
-            fab.scene.position.copy(modelInitialPosition);
-            removeProgress();
-            animation.setModel(fab.scene);
-            animation.startRotate();
-            animation.startFloat();
+    //     gltfLoader.load(json.shiny, function (shiny) {
+    //         shiny.scene;
+    //         shiny.scene.children[0].material.roughness = 0.2;
+    //         shiny.scene.traverse(function (child) {
+    //             if (child instanceof THREE.Mesh) {
+    //                 child.castShadow = true;
+    //             }
+    //         });
+    //         fab.scene.rotation.y = Math.PI / 2;
+    //         fab.scene.scale.set(modelScale, modelScale, modelScale);
+    //         fab.scene.add(shiny.scene);
+    //         shoeScene.add(fab.scene);
+    //         fab.scene.position.copy(modelInitialPosition);
+    //         removeProgress();
+    //         animation.setModel(fab.scene);
+    //         animation.startRotate();
+    //         animation.startFloat();
 
-        }, function (progress) {
-            var pro = progress.loaded / progress.total;
-            var proResult = pro - progresses[1];
-            progresses[1] = pro;
-            updateProgress(proResult / 2);
-        }, function (error) {
-            console.error(error);
-        });
-    }, function (progress) {
-        var pro = progress.loaded / progress.total;
-        var proResult = pro - progresses[0];
-        progresses[0] = pro;
-        updateProgress(proResult / 2);
-    }, function (error) {
-        console.error(error);
-    });
+    //     }, function (progress) {
+    //         var pro = progress.loaded / progress.total;
+    //         var proResult = pro - progresses[1];
+    //         progresses[1] = pro;
+    //         updateProgress(proResult / 2);
+    //     }, function (error) {
+    //         console.error(error);
+    //     });
+    // }, function (progress) {
+    //     var pro = progress.loaded / progress.total;
+    //     var proResult = pro - progresses[0];
+    //     progresses[0] = pro;
+    //     updateProgress(proResult / 2);
+    // }, function (error) {
+    //     console.error(error);
+    // });
 
 
 
+    var progress = console.log;
+    var err = console.error;
+
+    // new THREE.MTLLoader()
+    //     .setPath('models/')
+    //     .load('makeItRain.mtl', function (materials) {
+    //         materials.preload();
+    //         new THREE.OBJLoader()
+    //             .setMaterials(materials)
+    //             .setPath('models/')
+    //             .load('makeItRain.obj', function (object) {
+    //                 console.log(materials);
+    //                 // object.position.y = - 95;
+    //                 shoeScene.add(object);
+    //             }, progress, err);
+    //     });
+    // //
+
+
+    mtl_loader = new THREE.MTLLoader();
+    mtl_loader.load("models/makeItRain.mtl",
+        function (materials) {
+            materials.preload()
+            var obj_loader = new THREE.OBJLoader();
+            obj_loader.setMaterials(materials)
+            obj_loader.load("models/makeItRain.obj",
+                function (object) {
+                    let mesh = object.children[0]
+                    shoeScene.add(mesh);
+                }, null, function (error) { alert(error) }
+            )
+        }, null, function (error) { alert(error) }
+    );
 
 
 
@@ -320,7 +354,7 @@ function AnimateModel() {
         if (this.calcFloat(AMFloatProgress) === 0) {
             AMFloatSign = -AMFloatSign;
         }
-        AMmodel.position.y = AMFloatSign * this.calcFloat(AMFloatProgress) -1 + modelInitialPosition.y;
+        AMmodel.position.y = AMFloatSign * this.calcFloat(AMFloatProgress) - 1 + modelInitialPosition.y;
         AMFloatProgress += (AMFloatSpeed * AMFloatDirection);
     }
 
