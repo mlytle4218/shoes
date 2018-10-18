@@ -91,6 +91,15 @@ function loadModelOntoPage(json) {
     shoeRenderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
     shoeContainer.appendChild(shoeRenderer.domElement);
 
+    var envMap = new THREE.CubeTextureLoader().load([
+        'pics/posx.jpg',
+        'pics/negx.jpg',
+        'pics/posy.jpg',
+        'pics/negy.jpg',
+        'pics/posz.jpg',
+        'pics/negz.jpg'
+    ])
+
 
 
     // setting up the animation
@@ -101,86 +110,79 @@ function loadModelOntoPage(json) {
 
     var progresses = [0, 0];
 
-    // var gltfLoader = new THREE.GLTFLoader();
+    var gltfLoader = new THREE.GLTFLoader();
 
-    // gltfLoader.load(json.fab, function (fab) {
-    //     fab.scene.children[0].material.roughness = 0.8;
-    //     fab.scene.traverse(function (child) {
-    //         if (child instanceof THREE.Mesh) {
-    //             child.castShadow = true;
-    //         }
-    //     });
+    gltfLoader.load(json.fab, function (fab) {
+        fab.scene.children[0].material.roughness = 0.8;
+        fab.scene.traverse(function (child) {
+            if (child instanceof THREE.Mesh) {
+                child.castShadow = true;
+            }
+        });
 
-    //     gltfLoader.load(json.shiny, function (shiny) {
-    //         shiny.scene;
-    //         shiny.scene.children[0].material.roughness = 0.2;
-    //         shiny.scene.traverse(function (child) {
-    //             if (child instanceof THREE.Mesh) {
-    //                 child.castShadow = true;
-    //             }
-    //         });
-    //         fab.scene.rotation.y = Math.PI / 2;
-    //         fab.scene.scale.set(modelScale, modelScale, modelScale);
-    //         fab.scene.add(shiny.scene);
-    //         shoeScene.add(fab.scene);
-    //         fab.scene.position.copy(modelInitialPosition);
-    //         removeProgress();
-    //         animation.setModel(fab.scene);
-    //         animation.startRotate();
-    //         animation.startFloat();
+        gltfLoader.load(json.shiny, function (shiny) {
+            shiny.scene;
+            shiny.scene.children[0].material.roughness = 0.2;
+            shiny.scene.traverse(function (child) {
+                if (child instanceof THREE.Mesh) {
+                    child.castShadow = true;
+                }
+            });
+            fab.scene.rotation.y = Math.PI / 2;
+            fab.scene.scale.set(modelScale, modelScale, modelScale);
+            fab.scene.add(shiny.scene);
+            shoeScene.add(fab.scene);
+            fab.scene.position.copy(modelInitialPosition);
+            fab.scene.traverse( function (child){
+                if (child.isMesh ) {
+                    child.material.envMap = envMap;
+                }
+            });
+            removeProgress();
+            animation.setModel(fab.scene);
+            animation.startRotate();
+            animation.startFloat();
+            addGui();
 
-    //     }, function (progress) {
-    //         var pro = progress.loaded / progress.total;
-    //         var proResult = pro - progresses[1];
-    //         progresses[1] = pro;
-    //         updateProgress(proResult / 2);
-    //     }, function (error) {
-    //         console.error(error);
-    //     });
-    // }, function (progress) {
-    //     var pro = progress.loaded / progress.total;
-    //     var proResult = pro - progresses[0];
-    //     progresses[0] = pro;
-    //     updateProgress(proResult / 2);
-    // }, function (error) {
-    //     console.error(error);
-    // });
-
-
-
-    var progress = console.log;
-    var err = console.error;
-
-    // new THREE.MTLLoader()
-    //     .setPath('models/')
-    //     .load('makeItRain.mtl', function (materials) {
-    //         materials.preload();
-    //         new THREE.OBJLoader()
-    //             .setMaterials(materials)
-    //             .setPath('models/')
-    //             .load('makeItRain.obj', function (object) {
-    //                 console.log(materials);
-    //                 // object.position.y = - 95;
-    //                 shoeScene.add(object);
-    //             }, progress, err);
-    //     });
-    // //
+        }, function (progress) {
+            console.log(progress);
+            var pro = progress.loaded / progress.total;
+            var proResult = pro - progresses[1];
+            progresses[1] = pro;
+            updateProgress(proResult / 2);
+        }, function (error) {
+            console.error(error);
+        });
+    }, function (progress) {
+        var pro = progress.loaded / progress.total;
+        var proResult = pro - progresses[0];
+        progresses[0] = pro;
+        updateProgress(proResult / 2);
+    }, function (error) {
+        console.error(error);
+    });
 
 
-    mtl_loader = new THREE.MTLLoader();
-    mtl_loader.load("models/makeItRain.mtl",
-        function (materials) {
-            materials.preload()
-            var obj_loader = new THREE.OBJLoader();
-            obj_loader.setMaterials(materials)
-            obj_loader.load("models/makeItRain.obj",
-                function (object) {
-                    let mesh = object.children[0]
-                    shoeScene.add(mesh);
-                }, null, function (error) { alert(error) }
-            )
-        }, null, function (error) { alert(error) }
-    );
+
+
+    // var progress = console.log;
+    // var err = console.error;
+
+    // mtl_loader = new THREE.MTLLoader();
+    // mtl_loader.load("models/makeItRain.mtl",
+    //     function (materials) {
+    //         materials.preload()
+    //         var obj_loader = new THREE.OBJLoader();
+    //         obj_loader.setMaterials(materials)
+    //         obj_loader.load("models/makeItRain.obj",
+    //             function (object) {
+    //                 let mesh = object.children[0]
+    //                 mesh.material.envMap = envMap;
+    //                 shoeScene.add(mesh);
+    //             }, progress, function (error) { alert(error) }
+    //         )
+    //     }, progress, function (error) { alert(error) }
+    // );
 
 
 
@@ -205,6 +207,41 @@ function loadModelOntoPage(json) {
 
     animate();
 
+}
+
+function addGui(){
+
+    var params = { ambientColor : '#ffffff'}
+    var gui = new dat.GUI();
+    var model = gui.addFolder('Ambient Light');
+    model.addColor(params, 'ambientColor',0,1).onChange(function (){
+        var tempColor = new THREE.Color( params.ambientColor);
+        shoeScene.children[0].color = new THREE.Color(tempColor.getStyle());
+    });
+    model.add(shoeScene.children[0], 'intensity',0,1).listen();
+
+    var model = gui.addFolder('Point Light');
+    model.addColor(params, 'ambientColor',0,1).onChange(function (){
+        var tempColor = new THREE.Color( params.ambientColor);
+        shoeScene.children[1].color = new THREE.Color(tempColor.getStyle());
+    });
+    model.add(shoeScene.children[1], 'intensity',0,1).listen();
+
+    var model = gui.addFolder('Directional Light');
+    model.addColor(params, 'ambientColor',0,1).onChange(function (){
+        var tempColor = new THREE.Color( params.ambientColor);
+        shoeScene.children[2].children[0].color = new THREE.Color(tempColor.getStyle());
+    });
+    model.add(shoeScene.children[2].children[0], 'intensity',0,1).listen();
+    
+    var model = gui.addFolder('Fabric Model');
+    model.add(shoeScene.children[4].children[0].material, 'roughness',0,1).listen();
+    model.add(shoeScene.children[4].children[0].material, 'bumpScale',0,1).listen();
+    model.add(shoeScene.children[4].children[0].material, 'metalness',0,1).listen();
+    var model = gui.addFolder('Shiny Model');
+    model.add(shoeScene.children[4].children[1].children[0].material, 'roughness',0,1).listen();
+    model.add(shoeScene.children[4].children[1].children[0].material, 'bumpScale',0,1).listen();
+    model.add(shoeScene.children[4].children[1].children[0].material, 'metalness',0,1).listen();
 }
 
 function createProgress(sceneVar) {
