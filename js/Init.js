@@ -8,6 +8,7 @@ var shoeScene;
 var shoeContainer;
 var animation;
 var modelScale = .8;
+var composer;
 
 function loadModelOntoPage(json) {
     //Setting the mouse listeners
@@ -63,7 +64,7 @@ function loadModelOntoPage(json) {
     plane.name = "shadowPlane";
     plane.receiveShadow = true;
     plane.rotation.x = -(Math.PI / 36) * 17;
-    plane.position.y = -7;
+    plane.position.y = -9;
     shoeScene.add(plane);
 
     // add the progress bar cubes
@@ -84,11 +85,14 @@ function loadModelOntoPage(json) {
     });
     shoeRenderer.setPixelRatio(window.devicePixelRatio);
     shoeRenderer.setSize(shoeContainer.clientWidth, shoeContainer.clientHeight);
-    shoeRenderer.gammaOutput = false;
+    // shoeRenderer.gammaOutput = false;
     shoeRenderer.gammaInput = true;
     shoeRenderer.gammaOutput = true;
     shoeRenderer.shadowMap.enabled = true;
     shoeRenderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+    
+    shoeRenderer.physicallyBasedShading = true;    
+
     shoeContainer.appendChild(shoeRenderer.domElement);
 
     var envMap = new THREE.CubeTextureLoader().load([
@@ -108,81 +112,191 @@ function loadModelOntoPage(json) {
 
     // setting up the loaders to bring in the models and update the progrss bars as well
 
-    var progresses = [0, 0];
+    // var progresses = [0, 0];
 
-    var gltfLoader = new THREE.GLTFLoader();
+    // var gltfLoader = new THREE.GLTFLoader();
 
-    gltfLoader.load(json.fab, function (fab) {
-        fab.scene.children[0].material.roughness = 0.8;
-        fab.scene.traverse(function (child) {
-            if (child instanceof THREE.Mesh) {
-                child.castShadow = true;
-            }
-        });
+    // gltfLoader.load(json.fab, function (fab) {
+    //     fab.scene.children[0].material.roughness = 0.8;
+    //     fab.scene.traverse(function (child) {
+    //         if (child instanceof THREE.Mesh) {
+    //             child.castShadow = true;
+    //         }
+    //     });
 
-        gltfLoader.load(json.shiny, function (shiny) {
-            shiny.scene;
-            shiny.scene.children[0].material.roughness = 0.2;
-            shiny.scene.traverse(function (child) {
-                if (child instanceof THREE.Mesh) {
-                    child.castShadow = true;
-                }
-            });
-            fab.scene.rotation.y = Math.PI / 2;
-            fab.scene.scale.set(modelScale, modelScale, modelScale);
-            fab.scene.add(shiny.scene);
-            shoeScene.add(fab.scene);
-            fab.scene.position.copy(modelInitialPosition);
-            fab.scene.traverse( function (child){
-                if (child.isMesh ) {
-                    child.material.envMap = envMap;
-                }
-            });
-            removeProgress();
-            animation.setModel(fab.scene);
-            animation.startRotate();
-            animation.startFloat();
-            addGui();
+    //     gltfLoader.load(json.shiny, function (shiny) {
+    //         shiny.scene;
+    //         shiny.scene.children[0].material.roughness = 0.2;
+    //         shiny.scene.traverse(function (child) {
+    //             if (child instanceof THREE.Mesh) {
+    //                 child.castShadow = true;
+    //             }
+    //         });
+    //         fab.scene.rotation.y = Math.PI / 2;
+    //         fab.scene.scale.set(modelScale, modelScale, modelScale);
+    //         fab.scene.add(shiny.scene);
+    //         shoeScene.add(fab.scene);
+    //         fab.scene.position.copy(modelInitialPosition);
+    //         fab.scene.traverse( function (child){
+    //             if (child.isMesh ) {
+    //                 child.material.envMap = envMap;
+    //             }
+    //         });
+    //         removeProgress();
+    //         animation.setModel(fab.scene);
+    //         animation.startRotate();
+    //         animation.startFloat();
+    //         addGui();
 
-        }, function (progress) {
-            console.log(progress);
-            var pro = progress.loaded / progress.total;
-            var proResult = pro - progresses[1];
-            progresses[1] = pro;
-            updateProgress(proResult / 2);
-        }, function (error) {
-            console.error(error);
-        });
-    }, function (progress) {
-        var pro = progress.loaded / progress.total;
-        var proResult = pro - progresses[0];
-        progresses[0] = pro;
-        updateProgress(proResult / 2);
-    }, function (error) {
-        console.error(error);
-    });
-
-
+    //     }, function (progress) {
+    //         console.log(progress);
+    //         var pro = progress.loaded / progress.total;
+    //         var proResult = pro - progresses[1];
+    //         progresses[1] = pro;
+    //         updateProgress(proResult / 2);
+    //     }, function (error) {
+    //         console.error(error);
+    //     });
+    // }, function (progress) {
+    //     var pro = progress.loaded / progress.total;
+    //     var proResult = pro - progresses[0];
+    //     progresses[0] = pro;
+    //     updateProgress(proResult / 2);
+    // }, function (error) {
+    //     console.error(error);
+    // });
 
 
-    // var progress = console.log;
-    // var err = console.error;
+    var progress = console.log;
+    var err = console.error;
 
-    // mtl_loader = new THREE.MTLLoader();
-    // mtl_loader.load("models/makeItRain.mtl",
-    //     function (materials) {
-    //         materials.preload()
-    //         var obj_loader = new THREE.OBJLoader();
-    //         obj_loader.setMaterials(materials)
-    //         obj_loader.load("models/makeItRain.obj",
-    //             function (object) {
-    //                 let mesh = object.children[0]
-    //                 mesh.material.envMap = envMap;
-    //                 shoeScene.add(mesh);
-    //             }, progress, function (error) { alert(error) }
-    //         )
-    //     }, progress, function (error) { alert(error) }
-    // );
+    mtl_loader = new THREE.MTLLoader();
+    var matS = mtl_loader.loadNewS(json.diffuse, json.normal, json.rough);
+    var matF = mtl_loader.loadNewF(json.diffuse, json.normal, json.rough);
+
+    console.log(matS);
+    matS.preload();
+    matF.preload();
+
+
+
+    var obj_loader = new THREE.OBJLoader();
+    obj_loader.setMaterials(matS);
+    obj_loader.load(json.shiny,
+        function (shiny) {
+            shiny.children[0].material.envMap = envMap;
+            shiny.children[0].material.roughness = 0.2;
+            model = shiny;
+            console.log(shiny);
+
+            obj_loader.setMaterials(matF);
+            obj_loader.load(json.fab,
+                function (fabric) {
+                    fabric.children[0].material.envMap = envMap;
+                    fabric.children[0].material.roughness = 0.8;
+                    model2 = fabric;
+                    shiny.add(fabric)
+                    shoeScene.add(shiny);
+                    addGui();
+                }, progress, err
+            )
+        }, progress, err
+    )
+
+
+    // composer = new THREE.EffectComposer(shoeRenderer);
+    // var renderPass = new THREE.RenderPass(shoeScene, shoeCamera);
+    // composer.addPass(renderPass);
+    
+    // saoPass = new THREE.SAOPass(shoeScene, shoeCamera, false, true);
+    // saoPass.renderToScreen = true;
+    // composer.addPass(saoPass);
+
+
+
+
+
+    composer = new THREE.EffectComposer( shoeRenderer);
+    composer.addPass( new THREE.RenderPass( shoeScene, shoeCamera));
+    var shaderPass = new THREE.ShaderPass(THREE.SepiaShader);
+    shaderPass.renderToScreen = true;
+    composer.addPass(shaderPass);
+
+
+
+
+
+
+
+
+
+
+
+    // SCALE = 0.75;
+    // shoeRenderer.autoClear = false;
+
+    // effectColor = new THREE.ShaderPass( THREE.ColorCorrectionShader );
+    // effectSSAO = new THREE.ShaderPass( THREE.SSAOShader );
+    // effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
+    // effectScreen = new THREE.ShaderPass( THREE.CopyShader );
+
+    // // hblur = new THREE.ShaderPass( THREE.HorizontalTiltShiftShader );
+    // // vblur = new THREE.ShaderPass( THREE.VerticalTiltShiftShader );
+
+    // var bluriness = 4;
+
+    // // hblur.uniforms[ 'h' ].value = bluriness / ( SCALE * shoeContainer.clientWidth );
+    // // vblur.uniforms[ 'v' ].value = bluriness / ( SCALE * shoeContainer.clientWidth );
+
+    // // hblur.uniforms[ 'r' ].value = vblur.uniforms[ 'r' ].value = 0.5;
+
+    // renderTargetParametersRGB  = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
+    // renderTargetParametersRGBA = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat };
+    // depthTarget = new THREE.WebGLRenderTarget( SCALE * shoeContainer.clientWidth, SCALE * shoeContainer.clientHeight, renderTargetParametersRGBA );
+    // colorTarget = new THREE.WebGLRenderTarget( SCALE * shoeContainer.clientWidth, SCALE * shoeContainer.clientHeight, renderTargetParametersRGBA );
+
+    // effectScreen.renderToScreen = true;
+    // // vblur.renderToScreen = true;
+
+    // // effectScreen.enabled = !tiltShiftEnabled;
+
+    // composer = new THREE.EffectComposer( shoeRenderer, colorTarget );
+    // composer.addPass( effectSSAO );
+    // composer.addPass( effectColor );
+    // composer.addPass( effectFXAA );
+    // composer.addPass( effectScreen );
+    // // composer.addPass( hblur );
+    // // composer.addPass( vblur );
+
+    // effectSSAO.uniforms[ 'tDepth' ].value = depthTarget;
+    // effectSSAO.uniforms[ 'size' ].value.set( SCALE * shoeContainer.clientWidth, SCALE * shoeContainer.clientHeight );
+    // effectSSAO.uniforms[ 'cameraNear' ].value = shoeCamera.near;
+    // effectSSAO.uniforms[ 'cameraFar' ].value = shoeCamera.far;
+    // // effectSSAO.uniforms[ 'fogNear' ].value = shoeScene.fog.near;
+    // // effectSSAO.uniforms[ 'fogNear' ].value = 0;
+    // // effectSSAO.uniforms[ 'fogFar' ].value = shoeScene.fog.far;
+    // // effectSSAO.uniforms[ 'fogFar' ].value = 1;
+    // // effectSSAO.uniforms[ 'fogEnabled' ].value = 1;
+    // effectSSAO.uniforms[ 'aoClamp' ].value = 0.5;
+
+    // effectSSAO.material.defines = { "RGBA_DEPTH": true, "ONLY_AO_COLOR": "1.0, 0.7, 0.5" };
+
+    // effectFXAA.uniforms[ 'resolution' ].value.set( 1 / ( SCALE * shoeContainer.clientWidth ), 1 / ( SCALE * shoeContainer.clientHeight ) );
+
+    // effectColor.uniforms[ 'mulRGB' ].value.set( 1.4, 1.4, 1.4 );
+    // effectColor.uniforms[ 'powRGB' ].value.set( 1.2, 1.2, 1.2 );
+
+    // depth pass
+
+    // depthPassPlugin = new THREE.DepthPassPlugin();
+    // depthPassPlugin.renderTarget = depthTarget;
+
+    // shoeRenderer.addPrePlugin( depthPassPlugin );
+
+
+
+
+
 
 
 
@@ -209,39 +323,63 @@ function loadModelOntoPage(json) {
 
 }
 
-function addGui(){
+function addGui() {
 
-    var params = { ambientColor : '#ffffff'}
+    var params = {
+        ambientColor: '#ffffff'
+    }
     var gui = new dat.GUI();
-    var model = gui.addFolder('Ambient Light');
-    model.addColor(params, 'ambientColor',0,1).onChange(function (){
-        var tempColor = new THREE.Color( params.ambientColor);
+    var ambient = gui.addFolder('Ambient Light');
+    ambient.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+        var tempColor = new THREE.Color(params.ambientColor);
         shoeScene.children[0].color = new THREE.Color(tempColor.getStyle());
     });
-    model.add(shoeScene.children[0], 'intensity',0,1).listen();
+    ambient.add(shoeScene.children[0], 'intensity', 0, 1).listen();
 
-    var model = gui.addFolder('Point Light');
-    model.addColor(params, 'ambientColor',0,1).onChange(function (){
-        var tempColor = new THREE.Color( params.ambientColor);
+    var point = gui.addFolder('Point Light');
+    point.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+        var tempColor = new THREE.Color(params.ambientColor);
         shoeScene.children[1].color = new THREE.Color(tempColor.getStyle());
     });
-    model.add(shoeScene.children[1], 'intensity',0,1).listen();
+    point.add(shoeScene.children[1], 'intensity', 0, 1).listen();
 
-    var model = gui.addFolder('Directional Light');
-    model.addColor(params, 'ambientColor',0,1).onChange(function (){
-        var tempColor = new THREE.Color( params.ambientColor);
+    var directional = gui.addFolder('Directional Light');
+    directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+        var tempColor = new THREE.Color(params.ambientColor);
         shoeScene.children[2].children[0].color = new THREE.Color(tempColor.getStyle());
     });
-    model.add(shoeScene.children[2].children[0], 'intensity',0,1).listen();
+    directional.add(shoeScene.children[2].children[0], 'intensity', 0, 1).listen();
     
-    var model = gui.addFolder('Fabric Model');
-    model.add(shoeScene.children[4].children[0].material, 'roughness',0,1).listen();
-    model.add(shoeScene.children[4].children[0].material, 'bumpScale',0,1).listen();
-    model.add(shoeScene.children[4].children[0].material, 'metalness',0,1).listen();
-    var model = gui.addFolder('Shiny Model');
-    model.add(shoeScene.children[4].children[1].children[0].material, 'roughness',0,1).listen();
-    model.add(shoeScene.children[4].children[1].children[0].material, 'bumpScale',0,1).listen();
-    model.add(shoeScene.children[4].children[1].children[0].material, 'metalness',0,1).listen();
+    var fabric = gui.addFolder('Fabric Model');
+    fabric.add(shoeScene.children[4].children[1].children[0].material, 'roughness', 0, 1).listen();
+    fabric.add(shoeScene.children[4].children[1].children[0].material, 'bumpScale', 0, 1).listen();
+    fabric.add(shoeScene.children[4].children[1].children[0].material, 'metalness', 0, 1).listen();
+
+    var shiny = gui.addFolder('Shiny Model');
+    shiny.add(shoeScene.children[4].children[0].material, 'roughness', 0, 1).listen();
+    shiny.add(shoeScene.children[4].children[0].material, 'bumpScale', 0, 1).listen();
+    shiny.add(shoeScene.children[4].children[0].material, 'metalness', 0, 1).listen();
+
+    // gui.add( saoPass.params, 'output', {
+    //     'Beauty': THREE.SAOPass.OUTPUT.Beauty,
+    //     'Beauty+SAO': THREE.SAOPass.OUTPUT.Default,
+    //     'SAO': THREE.SAOPass.OUTPUT.SAO,
+    //     'Depth': THREE.SAOPass.OUTPUT.Depth,
+    //     'Normal': THREE.SAOPass.OUTPUT.Normal
+    // } ).onChange( function ( value ) {
+
+    //     saoPass.params.output = parseInt( value );
+
+    // } );
+    // gui.add( saoPass.params, 'saoBias', - 1, 1 );
+    // gui.add( saoPass.params, 'saoIntensity', 0, 1 );
+    // gui.add( saoPass.params, 'saoScale', 0, 10 );
+    // gui.add( saoPass.params, 'saoKernelRadius', 1, 100 );
+    // gui.add( saoPass.params, 'saoMinResolution', 0, 1 );
+    // gui.add( saoPass.params, 'saoBlur' );
+    // gui.add( saoPass.params, 'saoBlurRadius', 0, 200 );
+    // gui.add( saoPass.params, 'saoBlurStdDev', 0.5, 150 );
+    // gui.add( saoPass.params, 'saoBlurDepthCutoff', 0.0, 0.1 );
 }
 
 function createProgress(sceneVar) {
@@ -324,6 +462,7 @@ function inContainer(thisEvent) {
 }
 // **********************************************************
 function animate() {
+    composer.render();
     if (animation.hasModel()) {
         animation.tick();
     }
