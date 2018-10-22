@@ -8,15 +8,17 @@ var shoeScene;
 var shoeContainer;
 var animation;
 var modelScale = .8;
-var composer;
+var shoeComposer;
+var shoeRenderPass;
+var shoeSsaoPass;
+var shoeTaaRenderPass;
+
 
 function loadModelOntoPage(json) {
     //Setting the mouse listeners
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('mousedown', onMouseDown, false);
     window.addEventListener('mouseup', onMouseUp, false);
-
-    
 
     // getting the shoeContainer
     shoeContainer = document.getElementById(connectingElement);
@@ -30,21 +32,47 @@ function loadModelOntoPage(json) {
     var color = new THREE.Color(0xffffff);
     shoeScene.background = color;
 
-
-    // setting the ambient light for the model
+        // setting the ambient light for the model
     var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     shoeScene.add(ambientLight);
 
     // setting the point light that stays with the camera
-    var pointLight = new THREE.PointLight(0x999999, 0.05, 100, 1);
-    pointLight.position.set(0, 0, -1).normalize();
+    var pointLight = new THREE.PointLight(0x999999, 0.05, 11, 2);
+    // var pointLight = new THREE.SpotLight(0x999999, 0.05);
+    pointLight.position.set(0, -10, 0);//.normalize();
     pointLight.castShadow = true;
     shoeCamera.add(pointLight);
 
+    //Set up shadow properties for the light;
+    pointLight.shadow.mapSize.width = 1024; // default
+    pointLight.shadow.mapSize.height = 1024; // default
+    pointLight.shadow.camera.near = 1; // default
+    pointLight.shadow.camera.far = 1000 // default
+
     // setting a directional light directly over the model to light and cast shadows
-    var directionalLight = new THREE.SpotLight(0xffffff);
-    directionalLight.position.set(0, 25, 0);
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(0, 40, 0);
     directionalLight.castShadow = true;
+
+    // var helper = new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000);
+    // directionalLight.add(helper)
+
+    // setting a directional light directly over the model to light and cast shadows
+    var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight2.position.set(-10, 40, 0);
+    directionalLight2.castShadow = true;
+    shoeScene.add(directionalLight2);
+    // var helper2 = new THREE.DirectionalLightHelper(directionalLight2, 5, 0x00ff00);
+    // directionalLight2.add(helper2)
+
+    // setting a directional light directly over the model to light and cast shadows
+    var directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight3.position.set(10, 40, 0);
+    directionalLight3.castShadow = true;
+    shoeScene.add(directionalLight3);
+
+    // var helper3 = new THREE.DirectionalLightHelper(directionalLight3, 5, 0x0000ff);
+    // directionalLight3.add(helper3)
 
     //Set up shadow properties for the light
     directionalLight.shadow.mapSize.width = 512; // default
@@ -56,6 +84,34 @@ function loadModelOntoPage(json) {
 
     // add the camera so the pointlight following the camera will work
     shoeScene.add(shoeCamera);
+
+
+
+    // // setting the ambient light for the model
+    // var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    // shoeScene.add(ambientLight);
+
+    // // setting the point light that stays with the camera
+    // var pointLight = new THREE.PointLight(0x999999, 0.05, 100, 1);
+    // pointLight.position.set(0, 0, -1).normalize();
+    // pointLight.castShadow = true;
+    // shoeCamera.add(pointLight);
+
+    // // setting a directional light directly over the model to light and cast shadows
+    // var directionalLight = new THREE.SpotLight(0xffffff);
+    // directionalLight.position.set(0, 25, 0);
+    // directionalLight.castShadow = true;
+
+    // //Set up shadow properties for the light
+    // directionalLight.shadow.mapSize.width = 512; // default
+    // directionalLight.shadow.mapSize.height = 512; // default
+    // directionalLight.shadow.camera.near = 0.5; // default
+    // directionalLight.shadow.camera.far = 500; // default
+    // directionalLight.shadow.camera = new THREE.OrthographicCamera(-75, 75, 75, -75, 0.5, 1000);
+    // shoeScene.add(directionalLight);
+
+    // // add the camera so the pointlight following the camera will work
+    // shoeScene.add(shoeCamera);
 
     // setting the plane to which the model's shadow will cast
     var planeGeometry = new THREE.PlaneBufferGeometry(50, 50, 32, 32);
@@ -173,8 +229,8 @@ function loadModelOntoPage(json) {
     var err = console.error;
 
     mtl_loader = new THREE.MTLLoader();
-    var matS = mtl_loader.loadNewS(json.diffuse, json.normal, json.rough);
-    var matF = mtl_loader.loadNewF(json.diffuse, json.normal, json.rough);
+    var matS = mtl_loader.loadNew('KT4S',json.diffuse, json.normal, json.rough);
+    var matF = mtl_loader.loadNew('KT4F',json.diffuse, json.normal, json.rough);
 
     console.log(matS);
     matS.preload();
@@ -199,120 +255,39 @@ function loadModelOntoPage(json) {
                     model2 = fabric;
                     shiny.add(fabric)
                     shoeScene.add(shiny);
-                    addGui();
+                    // addGui();
                 }, progress, err
             )
         }, progress, err
     )
 
 
-    // composer = new THREE.EffectComposer(shoeRenderer);
-    // var renderPass = new THREE.RenderPass(shoeScene, shoeCamera);
-    // composer.addPass(renderPass);
+
+    shoeComposer = new THREE.EffectComposer(shoeRenderer);
+
+
+
+    shoeRenderPass = new THREE.RenderPass(shoeScene, shoeCamera);
+    shoeComposer.addPass(shoeRenderPass);
+
+
+
+
+    // Setup SSAO pass
+    shoeSsaoPass = new THREE.SSAOPass( shoeScene, shoeCamera );
+    shoeSsaoPass.radius = 35;
+    shoeSsaoPass.aoClamp = 0.18;
+    shoeSsaoPass.lumInfluence = 0.85;
+    shoeSsaoPass.renderToScreen = true;
+
+    shoeTaaRenderPass = new THREE.TAARenderPass(shoeScene, shoeCamera);
+    shoeTaaRenderPass.unbiased = false;
+    shoeTaaRenderPass.sampleLevel = 2;
+
     
-    // saoPass = new THREE.SAOPass(shoeScene, shoeCamera, false, true);
-    // saoPass.renderToScreen = true;
-    // composer.addPass(saoPass);
-
-
-
-
-
-    composer = new THREE.EffectComposer( shoeRenderer);
-    composer.addPass( new THREE.RenderPass( shoeScene, shoeCamera));
-    var shaderPass = new THREE.ShaderPass(THREE.SepiaShader);
-    shaderPass.renderToScreen = true;
-    composer.addPass(shaderPass);
-
-
-
-
-
-
-
-
-
-
-
-    // SCALE = 0.75;
-    // shoeRenderer.autoClear = false;
-
-    // effectColor = new THREE.ShaderPass( THREE.ColorCorrectionShader );
-    // effectSSAO = new THREE.ShaderPass( THREE.SSAOShader );
-    // effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
-    // effectScreen = new THREE.ShaderPass( THREE.CopyShader );
-
-    // // hblur = new THREE.ShaderPass( THREE.HorizontalTiltShiftShader );
-    // // vblur = new THREE.ShaderPass( THREE.VerticalTiltShiftShader );
-
-    // var bluriness = 4;
-
-    // // hblur.uniforms[ 'h' ].value = bluriness / ( SCALE * shoeContainer.clientWidth );
-    // // vblur.uniforms[ 'v' ].value = bluriness / ( SCALE * shoeContainer.clientWidth );
-
-    // // hblur.uniforms[ 'r' ].value = vblur.uniforms[ 'r' ].value = 0.5;
-
-    // renderTargetParametersRGB  = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
-    // renderTargetParametersRGBA = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat };
-    // depthTarget = new THREE.WebGLRenderTarget( SCALE * shoeContainer.clientWidth, SCALE * shoeContainer.clientHeight, renderTargetParametersRGBA );
-    // colorTarget = new THREE.WebGLRenderTarget( SCALE * shoeContainer.clientWidth, SCALE * shoeContainer.clientHeight, renderTargetParametersRGBA );
-
-    // effectScreen.renderToScreen = true;
-    // // vblur.renderToScreen = true;
-
-    // // effectScreen.enabled = !tiltShiftEnabled;
-
-    // composer = new THREE.EffectComposer( shoeRenderer, colorTarget );
-    // composer.addPass( effectSSAO );
-    // composer.addPass( effectColor );
-    // composer.addPass( effectFXAA );
-    // composer.addPass( effectScreen );
-    // // composer.addPass( hblur );
-    // // composer.addPass( vblur );
-
-    // effectSSAO.uniforms[ 'tDepth' ].value = depthTarget;
-    // effectSSAO.uniforms[ 'size' ].value.set( SCALE * shoeContainer.clientWidth, SCALE * shoeContainer.clientHeight );
-    // effectSSAO.uniforms[ 'cameraNear' ].value = shoeCamera.near;
-    // effectSSAO.uniforms[ 'cameraFar' ].value = shoeCamera.far;
-    // // effectSSAO.uniforms[ 'fogNear' ].value = shoeScene.fog.near;
-    // // effectSSAO.uniforms[ 'fogNear' ].value = 0;
-    // // effectSSAO.uniforms[ 'fogFar' ].value = shoeScene.fog.far;
-    // // effectSSAO.uniforms[ 'fogFar' ].value = 1;
-    // // effectSSAO.uniforms[ 'fogEnabled' ].value = 1;
-    // effectSSAO.uniforms[ 'aoClamp' ].value = 0.5;
-
-    // effectSSAO.material.defines = { "RGBA_DEPTH": true, "ONLY_AO_COLOR": "1.0, 0.7, 0.5" };
-
-    // effectFXAA.uniforms[ 'resolution' ].value.set( 1 / ( SCALE * shoeContainer.clientWidth ), 1 / ( SCALE * shoeContainer.clientHeight ) );
-
-    // effectColor.uniforms[ 'mulRGB' ].value.set( 1.4, 1.4, 1.4 );
-    // effectColor.uniforms[ 'powRGB' ].value.set( 1.2, 1.2, 1.2 );
-
-    // depth pass
-
-    // depthPassPlugin = new THREE.DepthPassPlugin();
-    // depthPassPlugin.renderTarget = depthTarget;
-
-    // shoeRenderer.addPrePlugin( depthPassPlugin );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // shoeComposer.addPass(saoPass);
+    shoeComposer.addPass( shoeSsaoPass );
+    shoeComposer.addPass(shoeTaaRenderPass);
 
 
 
@@ -464,7 +439,7 @@ function inContainer(thisEvent) {
 }
 // **********************************************************
 function animate() {
-    composer.render();
+    shoeComposer.render();
     if (animation.hasModel()) {
         animation.tick();
     }

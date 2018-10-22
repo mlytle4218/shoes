@@ -47,6 +47,8 @@
 	<script src="js/SAOShader.js"></script>
 	<script src="js/DepthLimitedBlurShader.js"></script>
 	<script src="js/UnpackDepthRGBAShader.js"></script>
+	<script src="js/SSAOShader.js"></script>
+	<script src="js/SSAOPass.js"></script>
 	<script src="js/OBJLoader.js"></script>
 	<script src="js/MTLLoader.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -54,11 +56,10 @@
 	<script src="js/WebGL.js"></script>
 	<!-- <script src="js/stats.min.js"></script> -->
 	<script src='js/dat.gui.min.js'></script>
+	<script src="js/SSAARenderPass.js"></script>
+	<script src="js/TAARenderPass.js"></script>
 
-	<div id="info">
-		<a href="http://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Scalable Ambient Occlusion
-		(SAO) shader by <a href="http://clara.io">Ben Houston</a> / Post-processing pass by <a href="http://ludobaka.github.io">Ludobaka</a>
-	</div>
+
 
 	<script>
 		if (WEBGL.isWebGLAvailable() === false) {
@@ -72,6 +73,7 @@
 		var composer, renderPass, saoPass;
 		var group;
 		var controls;
+		var postprocessing = { enabled: true, onlyAO: false, radius: 32, aoClamp: 0.25, lumInfluence: 0.7 };
 
 		init();
 		animate();
@@ -109,41 +111,47 @@
 			scene.background = color;
 
 
-			// var light = new THREE.PointLight(0xddffdd, 0.8);
-			// light.position.z = 70;
-			// light.position.y = -70;
-			// light.position.x = -70;
-			// scene.add(light);
-
-			// var light2 = new THREE.PointLight(0xffdddd, 0.8);
-			// light2.position.z = 70;
-			// light2.position.x = -70;
-			// light2.position.y = 70;
-			// scene.add(light2);
-
-			// var light3 = new THREE.PointLight(0xddddff, 0.8);
-			// light3.position.z = 70;
-			// light3.position.x = 70;
-			// light3.position.y = -70;
-			// scene.add(light3);
-
-			// var light3 = new THREE.AmbientLight(0xffffff, 0.05);
-			// scene.add(light3);
-
 			// setting the ambient light for the model
 			var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
 			scene.add(ambientLight);
 
 			// setting the point light that stays with the camera
-			var pointLight = new THREE.PointLight(0x999999, 0.05, 100, 1);
-			pointLight.position.set(0, 0, -1).normalize();
+			var pointLight = new THREE.PointLight(0x999999, 0.05, 11, 2);
+			// var pointLight = new THREE.SpotLight(0x999999, 0.05);
+			pointLight.position.set(0, -10, 0);//.normalize();
 			pointLight.castShadow = true;
 			camera.add(pointLight);
 
+			//Set up shadow properties for the light;
+			pointLight.shadow.mapSize.width = 1024; // default
+			pointLight.shadow.mapSize.height = 1024; // default
+			pointLight.shadow.camera.near = 1; // default
+			pointLight.shadow.camera.far = 1000 // default
+
 			// setting a directional light directly over the model to light and cast shadows
-			var directionalLight = new THREE.SpotLight(0xffffff);
+			var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
 			directionalLight.position.set(0, 40, 0);
 			directionalLight.castShadow = true;
+
+			// var helper = new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000);
+			// directionalLight.add(helper)
+
+			// setting a directional light directly over the model to light and cast shadows
+			var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
+			directionalLight2.position.set(-10, 40, 0);
+			directionalLight2.castShadow = true;
+			scene.add(directionalLight2);
+			// var helper2 = new THREE.DirectionalLightHelper(directionalLight2, 5, 0x00ff00);
+			// directionalLight2.add(helper2)
+
+			// setting a directional light directly over the model to light and cast shadows
+			var directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.8);
+			directionalLight3.position.set(10, 40, 0);
+			directionalLight3.castShadow = true;
+			scene.add(directionalLight3);
+
+			// var helper3 = new THREE.DirectionalLightHelper(directionalLight3, 5, 0x0000ff);
+			// directionalLight3.add(helper3)
 
 			//Set up shadow properties for the light
 			directionalLight.shadow.mapSize.width = 512; // default
@@ -164,21 +172,37 @@
 
 
 			var envMap = new THREE.CubeTextureLoader().load([
-				'pics/posx.jpg',
-				'pics/negx.jpg',
-				'pics/posy.jpg',
-				'pics/negy.jpg',
-				'pics/posz.jpg',
-				'pics/negz.jpg'
+				'pics/xp.png',
+				'pics/xn.png',
+				'pics/yp.png',
+				'pics/yn.png',
+				'pics/zp.png',
+				'pics/zn.png'
 			])
 
 
 			var json = {
-				"fab": "splits/makeItRain_f.obj",
-				"shiny": "splits/makeItRain_s.obj",
-				"diffuse": "_KT4_MiR_diffuse.jpg",
-				"rough": "_KT4_0_rough.jpg",
-				"normal": "_KT4_MiR_NML.jpg"
+				// "fab": "splits/makeItRain_f.obj",
+				// "shiny": "splits/makeItRain_s.obj",
+				// "diffuse": "_KT4_MiR_diffuse.jpg",
+				// "rough": "_KT4_0_rough.jpg",
+				// "normal": "_KT4_MiR_NML.jpg"
+
+				"fab": "splits2/onFire_f.obj",
+				// "shiny": "splits2/onFire_s.obj",
+				"shiny":"splits2/ShinyONLY_pluginExport.obj",
+				// "shiny":"splits2/ShinyONLY_c4dExport.obj",
+				"diffuse": "splits2/_KT4_Fire_diffuse_F.jpg",
+				"rough": "splits2/_KT4_Fire_Rough_F.jpg",
+				"normal": "splits2/_KT4_Fire_NML_F.jpg"
+
+
+
+				// "fab":"splits/onFire_f.obj",
+				// "shiny":"splits/onFire_s.obj",
+				// "diffuse":"_KT4_Fire_diffuse_sole2.jpg",
+				// "rough":"_KT4_0_rough_sole2.jpg",
+				// "normal":"_KT4_Fire_NML_sole2.jpg"
 			}
 
 
@@ -199,18 +223,33 @@
 			obj_loader.setMaterials(matS);
 			obj_loader.load(json.shiny,
 				function (shiny) {
+					shiny.children[0].material.roughness = 0.66;
+					shiny.children[0].material.metalness = 0.5;
+					shiny.traverse(function (child) {
+						if (child instanceof THREE.Mesh) {
+							child.castShadow = true;
+							child.receiveShadow = true;
+						}
+					});
 					shiny.children[0].material.envMap = envMap;
-					shiny.children[0].material.roughness = 0.2;
 					model = shiny;
 					console.log(shiny);
 
 					obj_loader.setMaterials(matF);
 					obj_loader.load(json.fab,
 						function (fabric) {
+							console.log(fabric);
 							fabric.children[0].material.envMap = envMap;
 							fabric.children[0].material.roughness = 0.8;
+							fabric.traverse(function (child) {
+								if (child instanceof THREE.Mesh) {
+									child.castShadow = true;
+									child.receiveShadow = true;
+								}
+							})
 							model2 = fabric;
 							shiny.add(fabric)
+							shiny.rotation.y = Math.PI / 2;
 							scene.add(shiny);
 							addGui();
 						}, progress, err
@@ -248,62 +287,38 @@
 
 
 
-			// var geometry = new THREE.SphereBufferGeometry( 3, 48, 24 );
 
-			// for ( var i = 0; i < 120; i ++ ) {
-
-			// 	var material = new THREE.MeshStandardMaterial();
-			// 	material.roughness = 0.5 * Math.random() + 0.25;
-			// 	material.metalness = 0;
-			// 	material.color.setHSL( Math.random(), 1.0, 0.3 );
-
-			// 	var mesh = new THREE.Mesh( geometry, material );
-			// 	mesh.position.x = Math.random() * 4 - 2;
-			// 	mesh.position.y = Math.random() * 4 - 2;
-			// 	mesh.position.z = Math.random() * 4 - 2;
-			// 	mesh.rotation.x = Math.random();
-			// 	mesh.rotation.y = Math.random();
-			// 	mesh.rotation.z = Math.random();
-
-			// 	mesh.scale.x = mesh.scale.y = mesh.scale.z = Math.random() * 0.2 + 0.05;
-			// 	group.add( mesh );
-
-			// }
-
-			// stats = new Stats();
-			// container.appendChild( stats.dom );
 
 			composer = new THREE.EffectComposer(renderer);
+
+
+
 			renderPass = new THREE.RenderPass(scene, camera);
 			composer.addPass(renderPass);
-			saoPass = new THREE.SAOPass(scene, camera, false, true);
-			saoPass.renderToScreen = true;
-			composer.addPass(saoPass);
-
-			// Init gui
-			// var gui = new dat.GUI();
-			// gui.add(saoPass.params, 'output', {
-			// 	'Beauty': THREE.SAOPass.OUTPUT.Beauty,
-			// 	'Beauty+SAO': THREE.SAOPass.OUTPUT.Default,
-			// 	'SAO': THREE.SAOPass.OUTPUT.SAO,
-			// 	'Depth': THREE.SAOPass.OUTPUT.Depth,
-			// 	'Normal': THREE.SAOPass.OUTPUT.Normal
-			// }).onChange(function (value) {
-
-			// 	saoPass.params.output = parseInt(value);
-
-			// });
 
 
 
 
+			// Setup SSAO pass
+			ssaoPass = new THREE.SSAOPass( scene, camera );
+			ssaoPass.radius = 35;
+			ssaoPass.aoClamp = 0.18;
+			ssaoPass.lumInfluence = 0.85;
+			ssaoPass.renderToScreen = true;
 
+			taaRenderPass = new THREE.TAARenderPass(scene, camera);
+			taaRenderPass.unbiased = false;
+			taaRenderPass.sampleLevel = 2;
+
+			composer.addPass(taaRenderPass)
+			// composer.addPass(saoPass);
+			composer.addPass( ssaoPass );
 
 			window.addEventListener('resize', onWindowResize, false);
 
 		}
 
-		function addGui(){
+		function addGui() {
 			var params = {
 				ambientColor: '#ffffff'
 			}
@@ -315,41 +330,68 @@
 			});
 			ambient.add(scene.children[0], 'intensity', 0, 1).listen();
 
-			var point = gui.addFolder('Point Light');
-			point.addColor(params, 'ambientColor', 0, 1).onChange(function () {
-				var tempColor = new THREE.Color(params.ambientColor);
-				scene.children[1].color = new THREE.Color(tempColor.getStyle());
-			});
-			point.add(scene.children[1], 'intensity', 0, 1).listen();
-
 			var directional = gui.addFolder('Directional Light');
 			directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
 				var tempColor = new THREE.Color(params.ambientColor);
-				scene.children[2].children[0].color = new THREE.Color(tempColor.getStyle());
+				scene.children[1].color = new THREE.Color(tempColor.getStyle());
 			});
-			directional.add(scene.children[2].children[0], 'intensity', 0, 1).listen();
+			directional.add(scene.children[1], 'intensity', 0, 1).listen();
+
+			var directional2 = gui.addFolder('Directional Light Back');
+			directional2.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+				var tempColor = new THREE.Color(params.ambientColor);
+				scene.children[1].color = new THREE.Color(tempColor.getStyle());
+			});
+			directional2.add(scene.children[1], 'intensity', 0, 1).listen();
+
+			var directional3 = gui.addFolder('Directional Light Front');
+			directional3.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+				var tempColor = new THREE.Color(params.ambientColor);
+				scene.children[1].color = new THREE.Color(tempColor.getStyle());
+			});
+			directional3.add(scene.children[1], 'intensity', 0, 1).listen();
+
+			var point = gui.addFolder('Point Light');
+			point.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+				var tempColor = new THREE.Color(params.ambientColor);
+				scene.children[4].children[0].color = new THREE.Color(tempColor.getStyle());
+			});
+			point.add(scene.children[4].children[0], 'intensity', 0, 1).listen();
 
 			var fabric = gui.addFolder('Fabric Model');
-			fabric.add(scene.children[3].children[1].children[0].material, 'roughness', 0, 1).listen();
-			fabric.add(scene.children[3].children[1].children[0].material, 'bumpScale', 0, 1).listen();
-			fabric.add(scene.children[3].children[1].children[0].material, 'metalness', 0, 1).listen();
+			fabric.add(scene.children[5].children[1].children[0].material, 'roughness', 0, 1).listen();
+			fabric.add(scene.children[5].children[1].children[0].material, 'bumpScale', 0, 1).listen();
+			fabric.add(scene.children[5].children[1].children[0].material, 'metalness', 0, 1).listen();
 
 			var shiny = gui.addFolder('Shiny Model');
-			shiny.add(scene.children[3].children[0].material, 'roughness', 0, 1).listen();
-			shiny.add(scene.children[3].children[0].material, 'bumpScale', 0, 1).listen();
-			shiny.add(scene.children[3].children[0].material, 'metalness', 0, 1).listen();
+			shiny.add(scene.children[5].children[0].material[0], 'roughness', 0, 1).listen();
+			shiny.add(scene.children[5].children[0].material[0], 'bumpScale', 0, 1).listen();
+			shiny.add(scene.children[5].children[0].material[0], 'metalness', 0, 1).listen();
 
 
-			var sao = gui.addFolder('AO');
-			sao.add(saoPass.params, 'saoBias', -1, 1);
-			sao.add(saoPass.params, 'saoIntensity', 0, 1);
-			sao.add(saoPass.params, 'saoScale', 0, 10);
-			sao.add(saoPass.params, 'saoKernelRadius', 1, 100);
-			sao.add(saoPass.params, 'saoMinResolution', 0, 1);
-			sao.add(saoPass.params, 'saoBlur');
-			sao.add(saoPass.params, 'saoBlurRadius', 0, 200);
-			sao.add(saoPass.params, 'saoBlurStdDev', 0.5, 150);
-			sao.add(saoPass.params, 'saoBlurDepthCutoff', 0.0, 0.1);
+			// var sao = gui.addFolder('AO');
+			// sao.add(saoPass.params, 'saoBias', -1, 1);
+			// sao.add(saoPass.params, 'saoIntensity', 0, 1);
+			// sao.add(saoPass.params, 'saoScale', 0, 10);
+			// sao.add(saoPass.params, 'saoKernelRadius', 1, 100);
+			// sao.add(saoPass.params, 'saoMinResolution', 0, 1);
+			// sao.add(saoPass.params, 'saoBlur');
+			// sao.add(saoPass.params, 'saoBlurRadius', 0, 200);
+			// sao.add(saoPass.params, 'saoBlurStdDev', 0.5, 150);
+			// sao.add(saoPass.params, 'saoBlurDepthCutoff', 0.0, 0.1);
+
+			var antiAlias = gui.addFolder('Anti-Alias');
+			antiAlias.add(taaRenderPass, 'sampleLevel', 0, 5, 1);
+
+
+			var ssao = gui.addFolder('SSAO');
+			ssao.add( postprocessing, 'enabled' );
+
+			ssao.add( ssaoPass, 'onlyAO', false ).onChange( function( value ) { ssaoPass.onlyAO = value; } );
+			ssao.add( ssaoPass, 'radius' ).min( 0 ).max( 64 ).onChange( function( value ) { ssaoPass.radius = value; } );
+			ssao.add( ssaoPass, 'aoClamp' ).min( 0 ).max( 1 ).onChange( function( value ) { ssaoPass.aoClamp = value; } );
+			ssao.add( ssaoPass, 'lumInfluence' ).min( 0 ).max( 1 ).onChange( function( value ) { ssaoPass.lumInfluence = value; } );
+
 		}
 
 		function onWindowResize() {

@@ -69,6 +69,9 @@
     <script src="js/GlitchPass.js"></script>
     <script src="js/DigitalGlitch.js"></script>
     <script src="js/WebGL.js"></script>
+    <script src="js/SSAOPass.js"></script>
+    <script src="js/SSAARenderPass.js"></script>
+    <script src="js/TAARenderPass.js"></script>
     <!-- <script src="js/threesixty_initialize.js"></script> -->
     <script>
         var make ={
@@ -78,14 +81,19 @@
             // "gltf2":"models/makeItRain_shiny.gltf",
             // "fab":"models/veteransDay_fab.gltf",
             // "shiny":"models/veteransDay_shiny.gltf"
-            "fab":"splits/makeItRain_f.obj",
-            "shiny":"splits/makeItRain_s.obj",
-            "diffuse":"_KT4_MiR_diffuse.jpg",
-            "rough":"_KT4_0_rough.jpg",
-            "normal":"_KT4_MiR_NML.jpg"
+            // "fab":"splits/makeItRain_f.obj",
+            // "shiny":"splits/makeItRain_s.obj",
+            // "diffuse":"_KT4_MiR_diffuse.jpg",
+            // "rough":"_KT4_0_rough.jpg",
+            // "normal":"_KT4_MiR_NML.jpg"
             // "gltf":"models/stillWatersRunDeep_fab.gltf",
             // "gltf2":"models/stillWatersRunDeep_shiny.gltf",
             // "shadow":"pics/print.png"
+            "fab": "splits2/onFire_f.obj",
+			"shiny": "splits2/onFire_s.obj",
+			"diffuse": "splits2/_KT4_Fire_diffuse_F.jpg",
+			"rough": "splits2/_KT4_Fire_Rough_F.jpg",
+			"normal": "splits2/_KT4_Fire_NML_F.jpg"
         }
         if (Detector.webgl) {
             loadModelOntoPage(make);

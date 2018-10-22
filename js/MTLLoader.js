@@ -42,13 +42,14 @@ THREE.MTLLoader.prototype = {
 		}, onProgress, onError);
 
 	},
-	loadNewS: function (diffuse, normal, rough) {
-		this.resourcePath = "splits/";
-
+	loadNew: function (which, diffuse, normal, rough) {
+		// this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse);
+		this.resourcePath = "splits2/";
+		console.log(diffuse.replace(this.resourcePath, ''));
 		var materialsInfo = {
-			'KT4S':
+			[which]:
 			{
-				'name': 'KT4',
+				'name': which,
 				'illum':'1',
 				'kd': 
 				{
@@ -56,39 +57,13 @@ THREE.MTLLoader.prototype = {
 					1:1,
 					2:1
 				},
-				'map_Kd':diffuse,
-				'map_Ks':rough,
-				'map_bump':normal
+				'map_Kd':diffuse.replace(this.resourcePath,''),
+				'map_Ks':rough.replace(this.resourcePath,''),
+				'map_bump':normal.replace(this.resourcePath,'')
 			}
 		};
 
-
-		var materialCreator = new THREE.MTLLoader.MaterialCreator(this.resourcePath, this.materialOptions);
-		materialCreator.setCrossOrigin(this.crossOrigin);
-		materialCreator.setManager(this.manager);
-		materialCreator.setMaterials(materialsInfo);
-		return materialCreator;
-
-	},
-	loadNewF: function (diffuse, normal, rough) {
-		this.resourcePath = "splits/";
-
-		var materialsInfo = {
-			'KT4F':
-			{
-				'name': 'KT4',
-				'illum':'1',
-				'kd': 
-				{
-					0:1,
-					1:1,
-					2:1
-				},
-				'map_Kd':diffuse,
-				'map_Ks':rough,
-				'map_bump':normal
-			}
-		};
+		console.log(materialsInfo);
 
 
 		var materialCreator = new THREE.MTLLoader.MaterialCreator(this.resourcePath, this.materialOptions);
