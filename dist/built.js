@@ -47252,6 +47252,7 @@ function loadModelOntoPage(json) {
     // add the progress bar cubes
     // createProgress(shoeScene); 
     var progressObject = new Progress(shoeScene, (json.fabSize + json.shinySize));
+    progressObject.create();
 
     // ading the orbit controls - pan and zoom
     var controls = new THREE.OrbitControls(shoeCamera, shoeContainer);
@@ -47748,7 +47749,7 @@ THREE.MTLLoader.prototype = {
 	},
 	loadNew: function (which, diffuse, normal, rough) {
 		// this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse);
-		this.resourcePath = "splits2/";
+		this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse); 
 		console.log(diffuse.replace(this.resourcePath, ''));
 		var materialsInfo = {};
 		materialsInfo[which]=

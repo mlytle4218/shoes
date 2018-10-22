@@ -44,7 +44,7 @@ THREE.MTLLoader.prototype = {
 	},
 	loadNew: function (which, diffuse, normal, rough) {
 		// this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse);
-		this.resourcePath = "splits2/";
+		this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse); 
 		console.log(diffuse.replace(this.resourcePath, ''));
 		var materialsInfo = {};
 		materialsInfo[which]=

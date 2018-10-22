@@ -13,7 +13,7 @@ module.exports = function (grunt) {
         },
         watch: {
             scripts: {
-                files: ["js/Init.js"],
+                files: ["js/*"],
                 tasks: ["concat","uglify"]
             }
         },
