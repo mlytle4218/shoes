@@ -125,7 +125,8 @@ function loadModelOntoPage(json) {
     shoeScene.add(plane);
 
     // add the progress bar cubes
-    // createProgress(shoeScene);
+    // createProgress(shoeScene); 
+    var progressObject = new Progress(shoeScene, (json.fabSize + json.shinySize));
 
     // ading the orbit controls - pan and zoom
     var controls = new THREE.OrbitControls(shoeCamera, shoeContainer);
@@ -151,14 +152,15 @@ function loadModelOntoPage(json) {
 
     shoeContainer.appendChild(shoeRenderer.domElement);
 
-    var envMap = new THREE.CubeTextureLoader().load([
-        'pics/xp.png',
-        'pics/xn.png',
-        'pics/yp.png',
-        'pics/yn.png',
-        'pics/zp.png',
-        'pics/zn.png'
-    ])
+
+    // var envMap = new THREE.CubeTextureLoader().load([
+    //     'pics/xp.png',
+    //     'pics/xn.png',
+    //     'pics/yp.png',
+    //     'pics/yn.png',
+    //     'pics/zp.png',
+    //     'pics/zn.png'
+    // ])
 
 
 
@@ -242,7 +244,7 @@ function loadModelOntoPage(json) {
         function (shiny) {
             shiny.children[0].material.roughness = 0.66;
             shiny.children[0].material.metalness = 0.5;
-            shiny.children[0].material.envMap = envMap;
+            // shiny.children[0].material.envMap = envMap;
             shiny.traverse(function (child) {
                 if (child instanceof THREE.Mesh) {
                     child.castShadow = true;
@@ -258,7 +260,7 @@ function loadModelOntoPage(json) {
             obj_loader.setMaterials(matF);
             obj_loader.load(json.fab,
                 function (fabric) {
-                    fabric.children[0].material.envMap = envMap;
+                    // fabric.children[0].material.envMap = envMap;
                     fabric.children[0].material.roughness = 0.8;
                     fabric.traverse(function (child) {
                         if (child instanceof THREE.Mesh) {
@@ -314,73 +316,43 @@ function loadModelOntoPage(json) {
 
 }
 
-function addGui() {
-
-    var params = {
-        ambientColor: '#ffffff'
+// **********************************************************
+function animate() {
+    shoeComposer.render();
+    if (animation.hasModel()) {
+        animation.tick();
     }
-    var gui = new dat.GUI();
-    var ambient = gui.addFolder('Ambient Light');
-    ambient.addColor(params, 'ambientColor', 0, 1).onChange(function () {
-        var tempColor = new THREE.Color(params.ambientColor);
-        shoeScene.children[0].color = new THREE.Color(tempColor.getStyle());
-    });
-    ambient.add(shoeScene.children[0], 'intensity', 0, 1).listen();
+    requestAnimationFrame(animate);
+    shoeRenderer.render(shoeScene, shoeCamera);
+}
+function Progress(sceneVar, totalSize){
+    var progTotalSize = totalSize;
+    var progSceneVar = sceneVar;
+    var progObject = new THREE.Object3D();
 
-    var point = gui.addFolder('Point Light');
-    point.addColor(params, 'ambientColor', 0, 1).onChange(function () {
-        var tempColor = new THREE.Color(params.ambientColor);
-        shoeScene.children[4].children[0].color = new THREE.Color(tempColor.getStyle());
-    });
-    point.add(shoeScene.children[4].children[0], 'intensity', 0, 1).listen();
-
-    var directional = gui.addFolder('Directional Light');
-    directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
-        var tempColor = new THREE.Color(params.ambientColor);
-        shoeScene.children[1].color = new THREE.Color(tempColor.getStyle());
-    });
-    directional.add(shoeScene.children[1], 'intensity', 0, 1).listen();
-
-    var directional = gui.addFolder('Directional Light NegY');
-    directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
-        var tempColor = new THREE.Color(params.ambientColor);
-        shoeScene.children[2].color = new THREE.Color(tempColor.getStyle());
-    });
-    directional.add(shoeScene.children[2], 'intensity', 0, 1).listen();
-
-    var directional = gui.addFolder('Directional Light PosY');
-    directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
-        var tempColor = new THREE.Color(params.ambientColor);
-        shoeScene.children[3].color = new THREE.Color(tempColor.getStyle());
-    });
-    directional.add(shoeScene.children[3], 'intensity', 0, 1).listen();
-    
-    var fabric = gui.addFolder('Fabric Model');
-    fabric.add(shoeScene.children[6].children[1].children[0].material, 'roughness', 0, 1).listen();
-    fabric.add(shoeScene.children[6].children[1].children[0].material, 'bumpScale', 0, 1).listen();
-    fabric.add(shoeScene.children[6].children[1].children[0].material, 'metalness', 0, 1).listen();
-
-    var shiny = gui.addFolder('Shiny Model');
-    shiny.add(shoeScene.children[6].children[0].material, 'roughness', 0, 1).listen();
-    shiny.add(shoeScene.children[6].children[0].material, 'bumpScale', 0, 1).listen();
-    shiny.add(shoeScene.children[6].children[0].material, 'metalness', 0, 1).listen();
-
-    var antiAlias = gui.addFolder('Anti-Alias');
-    antiAlias.add(shoeTaaRenderPass, 'sampleLevel', 0, 5, 1);
-
-
-    var ssao = gui.addFolder('SSAO');
-
-    ssao.add( shoeSsaoPass, 'onlyAO', false ).onChange( function( value ) { shoeSsaoPass.onlyAO = value; } );
-    ssao.add( shoeSsaoPass, 'radius' ).min( 0 ).max( 64 ).onChange( function( value ) { shoeSsaoPass.radius = value; } );
-    ssao.add( shoeSsaoPass, 'aoClamp' ).min( 0 ).max( 1 ).onChange( function( value ) { shoeSsaoPass.aoClamp = value; } );
-    ssao.add( shoeSsaoPass, 'lumInfluence' ).min( 0 ).max( 1 ).onChange( function( value ) { shoeSsaoPass.lumInfluence = value; } );
+    this.create = function () {
+        var geometry = new THREE.PlaneGeometry(33,3,3);
+        var material = new THREE.MeshBasicMaterial({
+            color: 0xff0000
+        });
+        var front = new THREE.Mesh(geometry, material);
+        front.scale.x = 0.0001;
+        var material2 = new THREE.MeshBasicMaterial({
+            color: 0xcccccc
+        });
+        var back = new THREE.Mesh(geometry, material2);
+        back.position.z = -1;
+        progObject.add(front);
+        progObject.add(back);
+        progObject.position.y = 5;
+        progSceneVar.add(progObject);
+    }
 
 }
 
 function createProgress(sceneVar) {
     // setting the cubes for the progress bar
-    var geometry = new THREE.BoxGeometry(33, 3, 3);
+    var geometry = new THREE.PlaneGeometry(33, 3, 3);
     var material = new THREE.MeshBasicMaterial({
         color: 0xff0000
     });
@@ -456,15 +428,7 @@ function inContainer(thisEvent) {
     }
     return false;
 }
-// **********************************************************
-function animate() {
-    shoeComposer.render();
-    if (animation.hasModel()) {
-        animation.tick();
-    }
-    requestAnimationFrame(animate);
-    shoeRenderer.render(shoeScene, shoeCamera);
-}
+
 
 function AnimateModel() {
     var AMmodel;
@@ -536,5 +500,69 @@ function AnimateModel() {
     this.calcFloat = function (x) {
         return -Math.pow(x, 2) + 1;
     }
+
+}
+
+function addGui() {
+
+    var params = {
+        ambientColor: '#ffffff'
+    }
+    var gui = new dat.GUI();
+    var ambient = gui.addFolder('Ambient Light');
+    ambient.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+        var tempColor = new THREE.Color(params.ambientColor);
+        shoeScene.children[0].color = new THREE.Color(tempColor.getStyle());
+    });
+    ambient.add(shoeScene.children[0], 'intensity', 0, 1).listen();
+
+    var point = gui.addFolder('Point Light');
+    point.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+        var tempColor = new THREE.Color(params.ambientColor);
+        shoeScene.children[4].children[0].color = new THREE.Color(tempColor.getStyle());
+    });
+    point.add(shoeScene.children[4].children[0], 'intensity', 0, 1).listen();
+
+    var directional = gui.addFolder('Directional Light');
+    directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+        var tempColor = new THREE.Color(params.ambientColor);
+        shoeScene.children[1].color = new THREE.Color(tempColor.getStyle());
+    });
+    directional.add(shoeScene.children[1], 'intensity', 0, 1).listen();
+
+    var directional = gui.addFolder('Directional Light NegY');
+    directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+        var tempColor = new THREE.Color(params.ambientColor);
+        shoeScene.children[2].color = new THREE.Color(tempColor.getStyle());
+    });
+    directional.add(shoeScene.children[2], 'intensity', 0, 1).listen();
+
+    var directional = gui.addFolder('Directional Light PosY');
+    directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+        var tempColor = new THREE.Color(params.ambientColor);
+        shoeScene.children[3].color = new THREE.Color(tempColor.getStyle());
+    });
+    directional.add(shoeScene.children[3], 'intensity', 0, 1).listen();
+    
+    var fabric = gui.addFolder('Fabric Model');
+    fabric.add(shoeScene.children[6].children[1].children[0].material, 'roughness', 0, 1).listen();
+    fabric.add(shoeScene.children[6].children[1].children[0].material, 'bumpScale', 0, 1).listen();
+    fabric.add(shoeScene.children[6].children[1].children[0].material, 'metalness', 0, 1).listen();
+
+    var shiny = gui.addFolder('Shiny Model');
+    shiny.add(shoeScene.children[6].children[0].material, 'roughness', 0, 1).listen();
+    shiny.add(shoeScene.children[6].children[0].material, 'bumpScale', 0, 1).listen();
+    shiny.add(shoeScene.children[6].children[0].material, 'metalness', 0, 1).listen();
+
+    var antiAlias = gui.addFolder('Anti-Alias');
+    antiAlias.add(shoeTaaRenderPass, 'sampleLevel', 0, 5, 1);
+
+
+    var ssao = gui.addFolder('SSAO');
+
+    ssao.add( shoeSsaoPass, 'onlyAO', false ).onChange( function( value ) { shoeSsaoPass.onlyAO = value; } );
+    ssao.add( shoeSsaoPass, 'radius' ).min( 0 ).max( 64 ).onChange( function( value ) { shoeSsaoPass.radius = value; } );
+    ssao.add( shoeSsaoPass, 'aoClamp' ).min( 0 ).max( 1 ).onChange( function( value ) { shoeSsaoPass.aoClamp = value; } );
+    ssao.add( shoeSsaoPass, 'lumInfluence' ).min( 0 ).max( 1 ).onChange( function( value ) { shoeSsaoPass.lumInfluence = value; } );
 
 }
