@@ -370,33 +370,12 @@ function addGui() {
 
 
     var ssao = gui.addFolder('SSAO');
-    // ssao.add( postprocessing, 'enabled' );
 
     ssao.add( shoeSsaoPass, 'onlyAO', false ).onChange( function( value ) { shoeSsaoPass.onlyAO = value; } );
     ssao.add( shoeSsaoPass, 'radius' ).min( 0 ).max( 64 ).onChange( function( value ) { shoeSsaoPass.radius = value; } );
     ssao.add( shoeSsaoPass, 'aoClamp' ).min( 0 ).max( 1 ).onChange( function( value ) { shoeSsaoPass.aoClamp = value; } );
     ssao.add( shoeSsaoPass, 'lumInfluence' ).min( 0 ).max( 1 ).onChange( function( value ) { shoeSsaoPass.lumInfluence = value; } );
 
-    // gui.add( saoPass.params, 'output', {
-    //     'Beauty': THREE.SAOPass.OUTPUT.Beauty,
-    //     'Beauty+SAO': THREE.SAOPass.OUTPUT.Default,
-    //     'SAO': THREE.SAOPass.OUTPUT.SAO,
-    //     'Depth': THREE.SAOPass.OUTPUT.Depth,
-    //     'Normal': THREE.SAOPass.OUTPUT.Normal
-    // } ).onChange( function ( value ) {
-
-    //     saoPass.params.output = parseInt( value );
-
-    // } );
-    // gui.add( saoPass.params, 'saoBias', - 1, 1 );
-    // gui.add( saoPass.params, 'saoIntensity', 0, 1 );
-    // gui.add( saoPass.params, 'saoScale', 0, 10 );
-    // gui.add( saoPass.params, 'saoKernelRadius', 1, 100 );
-    // gui.add( saoPass.params, 'saoMinResolution', 0, 1 );
-    // gui.add( saoPass.params, 'saoBlur' );
-    // gui.add( saoPass.params, 'saoBlurRadius', 0, 200 );
-    // gui.add( saoPass.params, 'saoBlurStdDev', 0.5, 150 );
-    // gui.add( saoPass.params, 'saoBlurDepthCutoff', 0.0, 0.1 );
 }
 
 function createProgress(sceneVar) {
