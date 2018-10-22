@@ -47137,7 +47137,7 @@ var shoeComposer;
 var shoeRenderPass;
 var shoeSsaoPass;
 var shoeTaaRenderPass;
-var rotationAnimationSpeed = 0.2;
+var rotationAnimationSpeed = 0.05;
 var modelInitialRotation = Math.PI / 2;
 
 
@@ -47595,8 +47595,8 @@ function AnimateModel() {
     var AMFloatHasPermission = false;
     var AMFloatProgress = 0;
     var AMFloatSign = 1;
-    // var AMFloatSpeed = 0.015625;
-    var AMFloatSpeed = 0.0625;
+    var AMFloatSpeed = 0.015625;
+    // var AMFloatSpeed = 0.0625;
     var AMFloatDistance = 1;
     var AMFloatDirection = -1;
 
