@@ -352,11 +352,12 @@ function Progress(sceneVar, totalSize){
         progSceneVar.add(progObject);
     }
     this.update = function (progressNew) {
-        if (processNew > progLastProgress) {
-            progProgress =(progressNew = progLastProgress);
+        if (progressNew > progLastProgress) {
+            progProgress +=(progressNew - progLastProgress);
         } else {
-            progLastProgress = progressNew;
+            progLastProgress += progressNew;
         }
+        progFront.scale.x = progProgress/progTotalSize;
     }
 
 }

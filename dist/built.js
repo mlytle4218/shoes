@@ -47477,11 +47477,12 @@ function Progress(sceneVar, totalSize){
         progSceneVar.add(progObject);
     }
     this.update = function (progressNew) {
-        if (processNew > progLastProgress) {
-            progProgress =(progressNew = progLastProgress);
+        if (progressNew > progLastProgress) {
+            progProgress +=(progressNew - progLastProgress);
         } else {
-            progLastProgress = progressNew;
+            progLastProgress += progressNew;
         }
+        progFront.scale.x = progProgress/progTotalSize;
     }
 
 }
@@ -47783,7 +47784,7 @@ THREE.MTLLoader.prototype = {
 
 
 		var materialCreator = new THREE.MTLLoader.MaterialCreator(this.resourcePath, this.materialOptions);
-		materialCreator.setCrossOrigin(true);
+		materialCreator.setCrossOrigin('anonymous');
 		materialCreator.setManager(this.manager);
 		materialCreator.setMaterials(materialsInfo);
 		return materialCreator;
