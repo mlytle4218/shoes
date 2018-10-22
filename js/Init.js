@@ -65,7 +65,7 @@ function loadModelOntoPage(json) {
     // setting a directional light directly over the model to light and cast shadows
     var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight2.position.set(-10, 40, 0);
-    directionalLight2.castShadow = true;
+    // directionalLight2.castShadow = true;
     shoeScene.add(directionalLight2);
     // var helper2 = new THREE.DirectionalLightHelper(directionalLight2, 5, 0x00ff00);
     // directionalLight2.add(helper2)
@@ -73,7 +73,7 @@ function loadModelOntoPage(json) {
     // setting a directional light directly over the model to light and cast shadows
     var directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight3.position.set(10, 40, 0);
-    directionalLight3.castShadow = true;
+    // directionalLight3.castShadow = true;
     shoeScene.add(directionalLight3);
 
     // var helper3 = new THREE.DirectionalLightHelper(directionalLight3, 5, 0x0000ff);
@@ -279,31 +279,31 @@ function loadModelOntoPage(json) {
 
 
 
-    // shoeComposer = new THREE.EffectComposer(shoeRenderer);
+    shoeComposer = new THREE.EffectComposer(shoeRenderer);
 
 
 
-    // shoeRenderPass = new THREE.RenderPass(shoeScene, shoeCamera);
-    // shoeComposer.addPass(shoeRenderPass);
+    shoeRenderPass = new THREE.RenderPass(shoeScene, shoeCamera);
+    shoeComposer.addPass(shoeRenderPass);
 
 
 
 
-    // // Setup SSAO pass
-    // shoeSsaoPass = new THREE.SSAOPass( shoeScene, shoeCamera );
-    // shoeSsaoPass.radius = 35;
-    // shoeSsaoPass.aoClamp = 0.18;
-    // shoeSsaoPass.lumInfluence = 0.85;
-    // shoeSsaoPass.renderToScreen = true;
+    // Setup SSAO pass
+    shoeSsaoPass = new THREE.SSAOPass( shoeScene, shoeCamera );
+    shoeSsaoPass.radius = 35;
+    shoeSsaoPass.aoClamp = 0.18;
+    shoeSsaoPass.lumInfluence = 0.85;
+    shoeSsaoPass.renderToScreen = true;
 
-    // shoeTaaRenderPass = new THREE.TAARenderPass(shoeScene, shoeCamera);
-    // shoeTaaRenderPass.unbiased = false;
-    // shoeTaaRenderPass.sampleLevel = 2;
+    shoeTaaRenderPass = new THREE.TAARenderPass(shoeScene, shoeCamera);
+    shoeTaaRenderPass.unbiased = false;
+    shoeTaaRenderPass.sampleLevel = 2;
 
     
-    // shoeComposer.addPass(saoPass);
-    // shoeComposer.addPass( shoeSsaoPass );
-    // shoeComposer.addPass(shoeTaaRenderPass);
+    
+    shoeComposer.addPass( shoeSsaoPass );
+    shoeComposer.addPass(shoeTaaRenderPass);
 
 
 
@@ -481,7 +481,7 @@ function inContainer(thisEvent) {
 }
 // **********************************************************
 function animate() {
-    // shoeComposer.render();
+    shoeComposer.render();
     if (animation.hasModel()) {
         animation.tick();
     }
