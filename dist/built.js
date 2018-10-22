@@ -47133,12 +47133,12 @@ var shoeScene;
 var shoeContainer;
 var animation;
 var modelScale = .8;
-var shoeComposer; 
+var shoeComposer;
 var shoeRenderPass;
 var shoeSsaoPass;
 var shoeTaaRenderPass;
 var rotationAnimationSpeed = 0.2;
-var modelInitialRotation = Math.PI/2;
+var modelInitialRotation = Math.PI / 2;
 
 
 function loadModelOntoPage(json) {
@@ -47159,13 +47159,13 @@ function loadModelOntoPage(json) {
     var color = new THREE.Color(0xffffff);
     shoeScene.background = color;
 
-        // setting the ambient light for the model
+    // setting the ambient light for the model
     var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     shoeScene.add(ambientLight);
 
     // setting the point light that stays with the camera
     var pointLight = new THREE.PointLight(0x999999, 0.05, 11, 2);
-    pointLight.position.set(0, -10, 0);//.normalize();
+    pointLight.position.set(0, -10, 0); //.normalize();
     // pointLight.castShadow = true;
     // //Set up shadow properties for the light;
     // pointLight.shadow.mapSize.width = 1024; // default
@@ -47264,17 +47264,17 @@ function loadModelOntoPage(json) {
 
 
     //set renderer
-    shoeRenderer = new THREE.WebGLRenderer({antialias: true});
-    // shoeRenderer = new THREE.WebGLRenderer();
+    shoeRenderer = new THREE.WebGLRenderer({
+        antialias: true
+    });
     shoeRenderer.setPixelRatio(window.devicePixelRatio);
     shoeRenderer.setSize(shoeContainer.clientWidth, shoeContainer.clientHeight);
-    // shoeRenderer.gammaOutput = false;
     shoeRenderer.gammaInput = true;
     shoeRenderer.gammaOutput = true;
     shoeRenderer.shadowMap.enabled = true;
-    shoeRenderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
-    
-    shoeRenderer.physicallyBasedShading = true;    
+    shoeRenderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+
+    shoeRenderer.physicallyBasedShading = true;
 
     shoeContainer.appendChild(shoeRenderer.domElement);
 
@@ -47351,12 +47351,12 @@ function loadModelOntoPage(json) {
     // });
 
 
-    var progress;// = console.log;
-    var err;// = console.error;
+    var progress; // = console.log;
+    var err; // = console.error;
 
     mtl_loader = new THREE.MTLLoader();
-    var matS = mtl_loader.loadNew('KT4S',json.diffuse, json.normal, json.rough);
-    var matF = mtl_loader.loadNew('KT4F',json.diffuse, json.normal, json.rough);
+    var matS = mtl_loader.loadNew('KT4S', json.diffuse, json.normal, json.rough);
+    var matF = mtl_loader.loadNew('KT4F', json.diffuse, json.normal, json.rough);
 
     console.log(matS);
     matS.preload();
@@ -47406,12 +47406,14 @@ function loadModelOntoPage(json) {
                     animation.startFloat();
                     animation.setModel(shiny);
                     progressObject.remove();
-                }, function (prog) {
-                    progressObject.update('fabric',prog.loaded);
+                },
+                function (prog) {
+                    progressObject.update('fabric', prog.loaded);
                 }, err
             )
-        }, function (prog) {
-            progressObject.update('shiny',prog.loaded);
+        },
+        function (prog) {
+            progressObject.update('shiny', prog.loaded);
         }, err
     )
 
@@ -47428,39 +47430,41 @@ function loadModelOntoPage(json) {
 
 
     // Setup SSAO pass
-    shoeSsaoPass = new THREE.SSAOPass( shoeScene, shoeCamera );
+    shoeSsaoPass = new THREE.SSAOPass(shoeScene, shoeCamera);
     shoeSsaoPass.radius = 35;
     shoeSsaoPass.aoClamp = 0.18;
     shoeSsaoPass.lumInfluence = 0.85;
     shoeSsaoPass.renderToScreen = true;
-    shoeComposer.addPass( shoeSsaoPass );
+    shoeComposer.addPass(shoeSsaoPass);
 
     shoeTaaRenderPass = new THREE.TAARenderPass(shoeScene, shoeCamera);
     shoeTaaRenderPass.unbiased = true;
-    shoeTaaRenderPass.sampleLevel = 2;
+    shoeTaaRenderPass.sampleLevel = 1;
     shoeComposer.addPass(shoeTaaRenderPass);
 
-
-
-
-
-
+    stats = new Stats();
+    stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild(stats.dom);
 
 
     animate();
+
 
 }
 
 // **********************************************************
 function animate() {
-    shoeComposer.render();
+    // stats.begin();
+    // shoeComposer.render();
     if (animation.hasModel()) {
         animation.tick();
     }
     requestAnimationFrame(animate);
     shoeRenderer.render(shoeScene, shoeCamera);
+    // stats.end();
 }
-function Progress(sceneVar, totalSize){
+
+function Progress(sceneVar, totalSize) {
     var progTotalSize = totalSize;
     var progSceneVar = sceneVar;
     var progObject = new THREE.Object3D();
@@ -47469,7 +47473,7 @@ function Progress(sceneVar, totalSize){
     var progFront;
 
     this.create = function () {
-        var geometry = new THREE.PlaneGeometry(33,3,3);
+        var geometry = new THREE.PlaneGeometry(33, 3, 3);
         var material = new THREE.MeshBasicMaterial({
             color: 0xff0000
         });
@@ -47486,19 +47490,19 @@ function Progress(sceneVar, totalSize){
         progSceneVar.add(progObject);
     }
     this.update = function (key, progressNew) {
-        if (key in progLastProgress){
-            progProgress += (progressNew - progLastProgress[key])/progTotalSize;
+        if (key in progLastProgress) {
+            progProgress += (progressNew - progLastProgress[key]) / progTotalSize;
             progLastProgress[key] = progressNew;
         } else {
             progLastProgress[key] = 0;
-            progProgress += progressNew/progTotalSize;
+            progProgress += progressNew / progTotalSize;
             progLastProgress[key] = progressNew;
 
         }
         progFront.scale.x = progProgress;
         progFront.position.x = -(1 - progFront.scale.x) * (progFront.geometry.parameters.width / 2);
     }
-    this.remove = function (){
+    this.remove = function () {
         progSceneVar.remove(progObject);
     }
 
@@ -47591,7 +47595,8 @@ function AnimateModel() {
     var AMFloatHasPermission = false;
     var AMFloatProgress = 0;
     var AMFloatSign = 1;
-    var AMFloatSpeed = 0.015625;
+    // var AMFloatSpeed = 0.015625;
+    var AMFloatSpeed = 0.0625;
     var AMFloatDistance = 1;
     var AMFloatDirection = -1;
 
@@ -47619,10 +47624,10 @@ function AnimateModel() {
         AMRotating = false;
     }
     this.rotate = function () {
-        if (AMRotateProgress >= ((2*Math.PI))) {
+        if (AMRotateProgress >= ((2 * Math.PI))) {
             this.stopRotate();
         } else {
-            AMRotateProgress+=rotationAnimationSpeed;
+            AMRotateProgress += rotationAnimationSpeed;
             AMmodel.rotation.y = modelInitialRotation + AMRotateProgress;
         }
     }
@@ -47697,7 +47702,7 @@ function addGui() {
         shoeScene.children[3].color = new THREE.Color(tempColor.getStyle());
     });
     directional.add(shoeScene.children[3], 'intensity', 0, 1).listen();
-    
+
     var fabric = gui.addFolder('Fabric Model');
     fabric.add(shoeScene.children[6].children[1].children[0].material, 'roughness', 0, 1).listen();
     fabric.add(shoeScene.children[6].children[1].children[0].material, 'bumpScale', 0, 1).listen();
@@ -47714,12 +47719,21 @@ function addGui() {
 
     var ssao = gui.addFolder('SSAO');
 
-    ssao.add( shoeSsaoPass, 'onlyAO', false ).onChange( function( value ) { shoeSsaoPass.onlyAO = value; } );
-    ssao.add( shoeSsaoPass, 'radius' ).min( 0 ).max( 64 ).onChange( function( value ) { shoeSsaoPass.radius = value; } );
-    ssao.add( shoeSsaoPass, 'aoClamp' ).min( 0 ).max( 1 ).onChange( function( value ) { shoeSsaoPass.aoClamp = value; } );
-    ssao.add( shoeSsaoPass, 'lumInfluence' ).min( 0 ).max( 1 ).onChange( function( value ) { shoeSsaoPass.lumInfluence = value; } );
+    ssao.add(shoeSsaoPass, 'onlyAO', false).onChange(function (value) {
+        shoeSsaoPass.onlyAO = value;
+    });
+    ssao.add(shoeSsaoPass, 'radius').min(0).max(64).onChange(function (value) {
+        shoeSsaoPass.radius = value;
+    });
+    ssao.add(shoeSsaoPass, 'aoClamp').min(0).max(1).onChange(function (value) {
+        shoeSsaoPass.aoClamp = value;
+    });
+    ssao.add(shoeSsaoPass, 'lumInfluence').min(0).max(1).onChange(function (value) {
+        shoeSsaoPass.lumInfluence = value;
+    });
 
-};/**
+}
+;/**
  * dat-gui JavaScript Controller Library
  * http://code.google.com/p/dat-gui
  *
