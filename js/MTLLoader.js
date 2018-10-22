@@ -45,7 +45,7 @@ THREE.MTLLoader.prototype = {
 	loadNew: function (which, diffuse, normal, rough) {
 		// this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse);
 		this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse); 
-		console.log(diffuse.replace(this.resourcePath, ''));
+		console.log(this.resourcePath);
 		var materialsInfo = {};
 		materialsInfo[which]=
 			{
@@ -67,7 +67,7 @@ THREE.MTLLoader.prototype = {
 
 
 		var materialCreator = new THREE.MTLLoader.MaterialCreator(this.resourcePath, this.materialOptions);
-		materialCreator.setCrossOrigin(this.crossOrigin);
+		materialCreator.setCrossOrigin(true);
 		materialCreator.setManager(this.manager);
 		materialCreator.setMaterials(materialsInfo);
 		return materialCreator;

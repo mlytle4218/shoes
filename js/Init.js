@@ -330,23 +330,33 @@ function Progress(sceneVar, totalSize){
     var progTotalSize = totalSize;
     var progSceneVar = sceneVar;
     var progObject = new THREE.Object3D();
+    var progLastProgress = 0;
+    var progProgress = 0;
+    var progFront;
 
     this.create = function () {
         var geometry = new THREE.PlaneGeometry(33,3,3);
         var material = new THREE.MeshBasicMaterial({
             color: 0xff0000
         });
-        var front = new THREE.Mesh(geometry, material);
-        front.scale.x = 0.0001;
+        progFront = new THREE.Mesh(geometry, material);
+        progFront.scale.x = 0.0001;
         var material2 = new THREE.MeshBasicMaterial({
             color: 0xcccccc
         });
         var back = new THREE.Mesh(geometry, material2);
         back.position.z = -1;
-        progObject.add(front);
+        progObject.add(progFront);
         progObject.add(back);
         progObject.position.y = 5;
         progSceneVar.add(progObject);
+    }
+    this.update = function (progressNew) {
+        if (processNew > progLastProgress) {
+            progProgress =(progressNew = progLastProgress);
+        } else {
+            progLastProgress = progressNew;
+        }
     }
 
 }
