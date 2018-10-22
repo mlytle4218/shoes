@@ -15,6 +15,7 @@ function loadModelOntoPage(json) {
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('mousedown', onMouseDown, false);
     window.addEventListener('mouseup', onMouseUp, false);
+
     
 
     // getting the shoeContainer
