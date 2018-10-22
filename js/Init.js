@@ -317,9 +317,9 @@ function loadModelOntoPage(json) {
     shoeTaaRenderPass.sampleLevel = 1;
     shoeComposer.addPass(shoeTaaRenderPass);
 
-    stats = new Stats();
-    stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-    document.body.appendChild(stats.dom);
+    // stats = new Stats();
+    // stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+    // document.body.appendChild(stats.dom);
 
 
     animate();
@@ -353,15 +353,16 @@ function Progress(sceneVar, totalSize) {
             color: 0xff0000
         });
         progFront = new THREE.Mesh(geometry, material);
-        progFront.scale.x = 0.0001;
+        progFront.scale.x = 0.000001;
         var material2 = new THREE.MeshBasicMaterial({
             color: 0xcccccc
         });
         var back = new THREE.Mesh(geometry, material2);
-        back.position.z = -1;
+        back.position.z = -0.001;
         progObject.add(progFront);
         progObject.add(back);
         progObject.position.y = 5;
+        progObject.position.z = 5;
         progSceneVar.add(progObject);
     }
     this.update = function (key, progressNew) {
@@ -383,51 +384,51 @@ function Progress(sceneVar, totalSize) {
 
 }
 
-function createProgress(sceneVar) {
-    // setting the cubes for the progress bar
-    var geometry = new THREE.PlaneGeometry(33, 3, 3);
-    var material = new THREE.MeshBasicMaterial({
-        color: 0xff0000
-    });
-    var cubeFront = new THREE.Mesh(geometry, material);
-    cubeFront.scale.x = 0.0001;
-    cubeFront.position.y = 5;
-    cubeFront.name = "cubeFront";
-    var material2 = new THREE.MeshBasicMaterial({
-        color: 0xcccccc
-    });
-    var cubeBack = new THREE.Mesh(geometry, material2);
-    cubeBack.position.z = -1;
-    cubeBack.position.y = 5;
-    cubeBack.name = "cubeBack";
-    sceneVar.add(cubeBack);
-    sceneVar.add(cubeFront);
+// function createProgress(sceneVar) {
+//     // setting the cubes for the progress bar
+//     var geometry = new THREE.PlaneGeometry(33, 3, 3);
+//     var material = new THREE.MeshBasicMaterial({
+//         color: 0xff0000
+//     });
+//     var cubeFront = new THREE.Mesh(geometry, material);
+//     cubeFront.scale.x = 0.0001;
+//     cubeFront.position.y = 5;
+//     cubeFront.name = "cubeFront";
+//     var material2 = new THREE.MeshBasicMaterial({
+//         color: 0xcccccc
+//     });
+//     var cubeBack = new THREE.Mesh(geometry, material2);
+//     cubeBack.position.z = -1;
+//     cubeBack.position.y = 5;
+//     cubeBack.name = "cubeBack";
+//     sceneVar.add(cubeBack);
+//     sceneVar.add(cubeFront);
 
-}
+// }
 
-function updateProgress(progress) {
-    shoeScene.children.forEach(function (element) {
-        if (element.name === "cubeFront") {
-            element.scale.x += progress;
-            element.position.x = -(1 - element.scale.x) * (element.geometry.parameters.width / 2);
-        }
-    });
-}
+// function updateProgress(progress) {
+//     shoeScene.children.forEach(function (element) {
+//         if (element.name === "cubeFront") {
+//             element.scale.x += progress;
+//             element.position.x = -(1 - element.scale.x) * (element.geometry.parameters.width / 2);
+//         }
+//     });
+// }
 
-function removeProgress() {
-    var front;
-    var back;
-    shoeScene.children.forEach(function (element) {
-        if (element.name === "cubeFront") {
-            front = element;
-        }
-        if (element.name === "cubeBack") {
-            back = element;
-        }
-    });
-    shoeScene.remove(front);
-    shoeScene.remove(back);
-}
+// function removeProgress() {
+//     var front;
+//     var back;
+//     shoeScene.children.forEach(function (element) {
+//         if (element.name === "cubeFront") {
+//             front = element;
+//         }
+//         if (element.name === "cubeBack") {
+//             back = element;
+//         }
+//     });
+//     shoeScene.remove(front);
+//     shoeScene.remove(back);
+// }
 
 function onWindowResize() {
     shoeCamera.aspect = shoeContainer.clientWidth / shoeContainer.clientHeight;
