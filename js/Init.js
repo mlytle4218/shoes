@@ -38,24 +38,29 @@ function loadModelOntoPage(json) {
 
     // setting the point light that stays with the camera
     var pointLight = new THREE.PointLight(0x999999, 0.05, 11, 2);
-    // var pointLight = new THREE.SpotLight(0x999999, 0.05);
     pointLight.position.set(0, -10, 0);//.normalize();
-    pointLight.castShadow = true;
+    // pointLight.castShadow = true;
+    // //Set up shadow properties for the light;
+    // pointLight.shadow.mapSize.width = 1024; // default
+    // pointLight.shadow.mapSize.height = 1024; // default
+    // pointLight.shadow.camera.near = 1; // default
+    // pointLight.shadow.camera.far = 1000 // default
     shoeCamera.add(pointLight);
-
-    //Set up shadow properties for the light;
-    pointLight.shadow.mapSize.width = 1024; // default
-    pointLight.shadow.mapSize.height = 1024; // default
-    pointLight.shadow.camera.near = 1; // default
-    pointLight.shadow.camera.far = 1000 // default
 
     // setting a directional light directly over the model to light and cast shadows
     var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(0, 40, 0);
     directionalLight.castShadow = true;
-
     // var helper = new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000);
     // directionalLight.add(helper)
+
+    //Set up shadow properties for the light
+    directionalLight.shadow.mapSize.width = 512; // default
+    directionalLight.shadow.mapSize.height = 512; // default
+    directionalLight.shadow.camera.near = 0.5; // default
+    directionalLight.shadow.camera.far = 500; // default
+    directionalLight.shadow.camera = new THREE.OrthographicCamera(-75, 75, 75, -75, 0.5, 1000);
+    shoeScene.add(directionalLight);
 
     // setting a directional light directly over the model to light and cast shadows
     var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -73,14 +78,6 @@ function loadModelOntoPage(json) {
 
     // var helper3 = new THREE.DirectionalLightHelper(directionalLight3, 5, 0x0000ff);
     // directionalLight3.add(helper3)
-
-    //Set up shadow properties for the light
-    directionalLight.shadow.mapSize.width = 512; // default
-    directionalLight.shadow.mapSize.height = 512; // default
-    directionalLight.shadow.camera.near = 0.5; // default
-    directionalLight.shadow.camera.far = 500; // default
-    directionalLight.shadow.camera = new THREE.OrthographicCamera(-75, 75, 75, -75, 0.5, 1000);
-    shoeScene.add(directionalLight);
 
     // add the camera so the pointlight following the camera will work
     shoeScene.add(shoeCamera);
@@ -154,12 +151,12 @@ function loadModelOntoPage(json) {
     shoeContainer.appendChild(shoeRenderer.domElement);
 
     var envMap = new THREE.CubeTextureLoader().load([
-        'pics/posx.jpg',
-        'pics/negx.jpg',
-        'pics/posy.jpg',
-        'pics/negy.jpg',
-        'pics/posz.jpg',
-        'pics/negz.jpg'
+        'pics/xp.png',
+        'pics/xn.png',
+        'pics/yp.png',
+        'pics/yn.png',
+        'pics/zp.png',
+        'pics/zn.png'
     ])
 
 
@@ -242,9 +239,19 @@ function loadModelOntoPage(json) {
     obj_loader.setMaterials(matS);
     obj_loader.load(json.shiny,
         function (shiny) {
+            shiny.children[0].material.roughness = 0.66;
+            shiny.children[0].material.metalness = 0.5;
             shiny.children[0].material.envMap = envMap;
-            shiny.children[0].material.roughness = 0.2;
+            shiny.traverse(function (child) {
+                if (child instanceof THREE.Mesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
             model = shiny;
+            shiny.rotation.y = Math.PI / 2;
+            shiny.position.y = -5;
+            shiny.scale.set(modelScale, modelScale, modelScale);
             console.log(shiny);
 
             obj_loader.setMaterials(matF);
@@ -252,10 +259,19 @@ function loadModelOntoPage(json) {
                 function (fabric) {
                     fabric.children[0].material.envMap = envMap;
                     fabric.children[0].material.roughness = 0.8;
+                    fabric.traverse(function (child) {
+                        if (child instanceof THREE.Mesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    })
                     model2 = fabric;
                     shiny.add(fabric)
                     shoeScene.add(shiny);
                     // addGui();
+                    animation.startRotate();
+                    animation.startFloat();
+                    animation.setModel(shiny);
                 }, progress, err
             )
         }, progress, err
@@ -263,31 +279,31 @@ function loadModelOntoPage(json) {
 
 
 
-    shoeComposer = new THREE.EffectComposer(shoeRenderer);
+    // shoeComposer = new THREE.EffectComposer(shoeRenderer);
 
 
 
-    shoeRenderPass = new THREE.RenderPass(shoeScene, shoeCamera);
-    shoeComposer.addPass(shoeRenderPass);
+    // shoeRenderPass = new THREE.RenderPass(shoeScene, shoeCamera);
+    // shoeComposer.addPass(shoeRenderPass);
 
 
 
 
-    // Setup SSAO pass
-    shoeSsaoPass = new THREE.SSAOPass( shoeScene, shoeCamera );
-    shoeSsaoPass.radius = 35;
-    shoeSsaoPass.aoClamp = 0.18;
-    shoeSsaoPass.lumInfluence = 0.85;
-    shoeSsaoPass.renderToScreen = true;
+    // // Setup SSAO pass
+    // shoeSsaoPass = new THREE.SSAOPass( shoeScene, shoeCamera );
+    // shoeSsaoPass.radius = 35;
+    // shoeSsaoPass.aoClamp = 0.18;
+    // shoeSsaoPass.lumInfluence = 0.85;
+    // shoeSsaoPass.renderToScreen = true;
 
-    shoeTaaRenderPass = new THREE.TAARenderPass(shoeScene, shoeCamera);
-    shoeTaaRenderPass.unbiased = false;
-    shoeTaaRenderPass.sampleLevel = 2;
+    // shoeTaaRenderPass = new THREE.TAARenderPass(shoeScene, shoeCamera);
+    // shoeTaaRenderPass.unbiased = false;
+    // shoeTaaRenderPass.sampleLevel = 2;
 
     
     // shoeComposer.addPass(saoPass);
-    shoeComposer.addPass( shoeSsaoPass );
-    shoeComposer.addPass(shoeTaaRenderPass);
+    // shoeComposer.addPass( shoeSsaoPass );
+    // shoeComposer.addPass(shoeTaaRenderPass);
 
 
 
@@ -316,26 +332,52 @@ function addGui() {
     var point = gui.addFolder('Point Light');
     point.addColor(params, 'ambientColor', 0, 1).onChange(function () {
         var tempColor = new THREE.Color(params.ambientColor);
-        shoeScene.children[1].color = new THREE.Color(tempColor.getStyle());
+        shoeScene.children[4].children[0].color = new THREE.Color(tempColor.getStyle());
     });
-    point.add(shoeScene.children[1], 'intensity', 0, 1).listen();
+    point.add(shoeScene.children[4].children[0], 'intensity', 0, 1).listen();
 
     var directional = gui.addFolder('Directional Light');
     directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
         var tempColor = new THREE.Color(params.ambientColor);
-        shoeScene.children[2].children[0].color = new THREE.Color(tempColor.getStyle());
+        shoeScene.children[1].color = new THREE.Color(tempColor.getStyle());
     });
-    directional.add(shoeScene.children[2].children[0], 'intensity', 0, 1).listen();
+    directional.add(shoeScene.children[1], 'intensity', 0, 1).listen();
+
+    var directional = gui.addFolder('Directional Light NegY');
+    directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+        var tempColor = new THREE.Color(params.ambientColor);
+        shoeScene.children[2].color = new THREE.Color(tempColor.getStyle());
+    });
+    directional.add(shoeScene.children[2], 'intensity', 0, 1).listen();
+
+    var directional = gui.addFolder('Directional Light PosY');
+    directional.addColor(params, 'ambientColor', 0, 1).onChange(function () {
+        var tempColor = new THREE.Color(params.ambientColor);
+        shoeScene.children[3].color = new THREE.Color(tempColor.getStyle());
+    });
+    directional.add(shoeScene.children[3], 'intensity', 0, 1).listen();
     
     var fabric = gui.addFolder('Fabric Model');
-    fabric.add(shoeScene.children[4].children[1].children[0].material, 'roughness', 0, 1).listen();
-    fabric.add(shoeScene.children[4].children[1].children[0].material, 'bumpScale', 0, 1).listen();
-    fabric.add(shoeScene.children[4].children[1].children[0].material, 'metalness', 0, 1).listen();
+    fabric.add(shoeScene.children[6].children[1].children[0].material, 'roughness', 0, 1).listen();
+    fabric.add(shoeScene.children[6].children[1].children[0].material, 'bumpScale', 0, 1).listen();
+    fabric.add(shoeScene.children[6].children[1].children[0].material, 'metalness', 0, 1).listen();
 
     var shiny = gui.addFolder('Shiny Model');
-    shiny.add(shoeScene.children[4].children[0].material, 'roughness', 0, 1).listen();
-    shiny.add(shoeScene.children[4].children[0].material, 'bumpScale', 0, 1).listen();
-    shiny.add(shoeScene.children[4].children[0].material, 'metalness', 0, 1).listen();
+    shiny.add(shoeScene.children[6].children[0].material, 'roughness', 0, 1).listen();
+    shiny.add(shoeScene.children[6].children[0].material, 'bumpScale', 0, 1).listen();
+    shiny.add(shoeScene.children[6].children[0].material, 'metalness', 0, 1).listen();
+
+    var antiAlias = gui.addFolder('Anti-Alias');
+    antiAlias.add(shoeTaaRenderPass, 'sampleLevel', 0, 5, 1);
+
+
+    var ssao = gui.addFolder('SSAO');
+    // ssao.add( postprocessing, 'enabled' );
+
+    ssao.add( shoeSsaoPass, 'onlyAO', false ).onChange( function( value ) { shoeSsaoPass.onlyAO = value; } );
+    ssao.add( shoeSsaoPass, 'radius' ).min( 0 ).max( 64 ).onChange( function( value ) { shoeSsaoPass.radius = value; } );
+    ssao.add( shoeSsaoPass, 'aoClamp' ).min( 0 ).max( 1 ).onChange( function( value ) { shoeSsaoPass.aoClamp = value; } );
+    ssao.add( shoeSsaoPass, 'lumInfluence' ).min( 0 ).max( 1 ).onChange( function( value ) { shoeSsaoPass.lumInfluence = value; } );
 
     // gui.add( saoPass.params, 'output', {
     //     'Beauty': THREE.SAOPass.OUTPUT.Beauty,
@@ -417,7 +459,7 @@ function onMouseDown(event) {
 
             shoeScene.children.forEach(function (element) {
                 if (element.name === "shadowPlane") {
-                    shoeScene.remove(element);
+                    // shoeScene.remove(element);
                     animation.stopFloat();
                 }
             });
@@ -439,7 +481,7 @@ function inContainer(thisEvent) {
 }
 // **********************************************************
 function animate() {
-    shoeComposer.render();
+    // shoeComposer.render();
     if (animation.hasModel()) {
         animation.tick();
     }
@@ -483,7 +525,7 @@ function AnimateModel() {
             AMRotating = false;
         } else {
             AMRotateProgress++;
-            AMmodel.rotation.y += 0.05;
+            AMmodel.rotation.y += 0.1;
         }
     }
     this.isRotating = function () {
