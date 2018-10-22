@@ -47405,7 +47405,7 @@ function loadModelOntoPage(json) {
                     animation.startRotate();
                     animation.startFloat();
                     animation.setModel(shiny);
-                    // progressObject.remove();
+                    progressObject.remove();
                 },
                 function (prog) {
                     progressObject.update('fabric', prog.loaded);
