@@ -525,7 +525,7 @@ function AnimateModel() {
             AMRotating = false;
         } else {
             AMRotateProgress++;
-            AMmodel.rotation.y += 0.1;
+            AMmodel.rotation.y += 0.05;
         }
     }
     this.isRotating = function () {
