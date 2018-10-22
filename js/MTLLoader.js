@@ -46,8 +46,8 @@ THREE.MTLLoader.prototype = {
 		// this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse);
 		this.resourcePath = "splits2/";
 		console.log(diffuse.replace(this.resourcePath, ''));
-		var materialsInfo = {
-			[which]:
+		var materialsInfo = {};
+		materialsInfo[which]=
 			{
 				'name': which,
 				'illum':'1',
@@ -61,7 +61,7 @@ THREE.MTLLoader.prototype = {
 				'map_Ks':rough.replace(this.resourcePath,''),
 				'map_bump':normal.replace(this.resourcePath,'')
 			}
-		};
+		
 
 		console.log(materialsInfo);
 

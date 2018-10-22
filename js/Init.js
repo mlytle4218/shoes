@@ -8,10 +8,12 @@ var shoeScene;
 var shoeContainer;
 var animation;
 var modelScale = .8;
-var shoeComposer;
+var shoeComposer; 
 var shoeRenderPass;
 var shoeSsaoPass;
 var shoeTaaRenderPass;
+var rotationAnimationSpeed = 0.2;
+var modelInitialRotation = Math.PI/2;
 
 
 function loadModelOntoPage(json) {
@@ -135,9 +137,8 @@ function loadModelOntoPage(json) {
 
 
     //set renderer
-    shoeRenderer = new THREE.WebGLRenderer({
-        antialias: true
-    });
+    shoeRenderer = new THREE.WebGLRenderer({antialias: true});
+    // shoeRenderer = new THREE.WebGLRenderer();
     shoeRenderer.setPixelRatio(window.devicePixelRatio);
     shoeRenderer.setSize(shoeContainer.clientWidth, shoeContainer.clientHeight);
     // shoeRenderer.gammaOutput = false;
@@ -222,8 +223,8 @@ function loadModelOntoPage(json) {
     // });
 
 
-    var progress = console.log;
-    var err = console.error;
+    var progress;// = console.log;
+    var err;// = console.error;
 
     mtl_loader = new THREE.MTLLoader();
     var matS = mtl_loader.loadNew('KT4S',json.diffuse, json.normal, json.rough);
@@ -249,7 +250,7 @@ function loadModelOntoPage(json) {
                 }
             });
             model = shiny;
-            shiny.rotation.y = Math.PI / 2;
+            shiny.rotation.y = modelInitialRotation;
             shiny.position.y = -5;
             shiny.scale.set(modelScale, modelScale, modelScale);
             console.log(shiny);
@@ -295,14 +296,11 @@ function loadModelOntoPage(json) {
     shoeSsaoPass.aoClamp = 0.18;
     shoeSsaoPass.lumInfluence = 0.85;
     shoeSsaoPass.renderToScreen = true;
+    shoeComposer.addPass( shoeSsaoPass );
 
     shoeTaaRenderPass = new THREE.TAARenderPass(shoeScene, shoeCamera);
-    shoeTaaRenderPass.unbiased = false;
+    shoeTaaRenderPass.unbiased = true;
     shoeTaaRenderPass.sampleLevel = 2;
-
-    
-    
-    shoeComposer.addPass( shoeSsaoPass );
     shoeComposer.addPass(shoeTaaRenderPass);
 
 
@@ -520,12 +518,15 @@ function AnimateModel() {
     this.startRotate = function () {
         AMRotating = true;
     }
+    this.stopRotate = function () {
+        AMRotating = false;
+    }
     this.rotate = function () {
-        if (AMRotateProgress >= 125) {
-            AMRotating = false;
+        if (AMRotateProgress >= ((2*Math.PI))) {
+            this.stopRotate();
         } else {
-            AMRotateProgress++;
-            AMmodel.rotation.y += 0.05;
+            AMRotateProgress+=rotationAnimationSpeed;
+            AMmodel.rotation.y = modelInitialRotation + AMRotateProgress;
         }
     }
     this.isRotating = function () {
