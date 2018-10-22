@@ -47405,7 +47405,7 @@ function loadModelOntoPage(json) {
                     animation.startRotate();
                     animation.startFloat();
                     animation.setModel(shiny);
-                    progressObject.remove();
+                    // progressObject.remove();
                 },
                 function (prog) {
                     progressObject.update('fabric', prog.loaded);
@@ -47486,7 +47486,8 @@ function Progress(sceneVar, totalSize) {
         back.position.z = -0.001;
         progObject.add(progFront);
         progObject.add(back);
-        progObject.position.y = 5;
+        // progObject.position.y = 5;
+        progObject.rotation.x = 0.052;
         progObject.position.z = 5;
         progSceneVar.add(progObject);
     }
