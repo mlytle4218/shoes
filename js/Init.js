@@ -126,7 +126,7 @@ function loadModelOntoPage(json) {
 
     // add the progress bar cubes
     // createProgress(shoeScene); 
-    var progressObject = new Progress(shoeScene, (json.fabSize + json.shinySize));
+    var progressObject = new Progress(shoeScene, json.totalFileSize);
     progressObject.create();
 
     // ading the orbit controls - pan and zoom
@@ -237,6 +237,9 @@ function loadModelOntoPage(json) {
     matS.preload();
     matF.preload();
 
+    var shinyProgress = 0;
+    var fabricProgress = 0;
+
 
 
     var obj_loader = new THREE.OBJLoader();
@@ -271,14 +274,20 @@ function loadModelOntoPage(json) {
                     })
                     model2 = fabric;
                     shiny.add(fabric)
+                    shiny.position.copy(modelInitialPosition);
                     shoeScene.add(shiny);
                     // addGui();
                     animation.startRotate();
                     animation.startFloat();
                     animation.setModel(shiny);
-                }, progress, err
+                    progressObject.remove();
+                }, function (prog) {
+                    progressObject.update('fabric',prog.loaded);
+                }, err
             )
-        }, progress, err
+        }, function (prog) {
+            progressObject.update('shiny',prog.loaded);
+        }, err
     )
 
 
@@ -330,7 +339,7 @@ function Progress(sceneVar, totalSize){
     var progTotalSize = totalSize;
     var progSceneVar = sceneVar;
     var progObject = new THREE.Object3D();
-    var progLastProgress = 0;
+    var progLastProgress = {};
     var progProgress = 0;
     var progFront;
 
@@ -351,13 +360,21 @@ function Progress(sceneVar, totalSize){
         progObject.position.y = 5;
         progSceneVar.add(progObject);
     }
-    this.update = function (progressNew) {
-        if (progressNew > progLastProgress) {
-            progProgress +=(progressNew - progLastProgress);
+    this.update = function (key, progressNew) {
+        if (key in progLastProgress){
+            progProgress += (progressNew - progLastProgress[key])/progTotalSize;
+            progLastProgress[key] = progressNew;
         } else {
-            progLastProgress += progressNew;
+            progLastProgress[key] = 0;
+            progProgress += progressNew/progTotalSize;
+            progLastProgress[key] = progressNew;
+
         }
-        progFront.scale.x = progProgress/progTotalSize;
+        progFront.scale.x = progProgress;
+        progFront.position.x = -(1 - progFront.scale.x) * (progFront.geometry.parameters.width / 2);
+    }
+    this.remove = function (){
+        progSceneVar.remove(progObject);
     }
 
 }
