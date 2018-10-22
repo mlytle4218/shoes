@@ -47562,7 +47562,7 @@ function onMouseDown(event) {
 
             shoeScene.children.forEach(function (element) {
                 if (element.name === "shadowPlane") {
-                    // shoeScene.remove(element);
+                    shoeScene.remove(element);
                     animation.stopFloat();
                 }
             });
