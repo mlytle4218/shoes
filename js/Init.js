@@ -84,34 +84,6 @@ function loadModelOntoPage(json) {
     // add the camera so the pointlight following the camera will work
     shoeScene.add(shoeCamera);
 
-
-
-    // // setting the ambient light for the model
-    // var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    // shoeScene.add(ambientLight);
-
-    // // setting the point light that stays with the camera
-    // var pointLight = new THREE.PointLight(0x999999, 0.05, 100, 1);
-    // pointLight.position.set(0, 0, -1).normalize();
-    // pointLight.castShadow = true;
-    // shoeCamera.add(pointLight);
-
-    // // setting a directional light directly over the model to light and cast shadows
-    // var directionalLight = new THREE.SpotLight(0xffffff);
-    // directionalLight.position.set(0, 25, 0);
-    // directionalLight.castShadow = true;
-
-    // //Set up shadow properties for the light
-    // directionalLight.shadow.mapSize.width = 512; // default
-    // directionalLight.shadow.mapSize.height = 512; // default
-    // directionalLight.shadow.camera.near = 0.5; // default
-    // directionalLight.shadow.camera.far = 500; // default
-    // directionalLight.shadow.camera = new THREE.OrthographicCamera(-75, 75, 75, -75, 0.5, 1000);
-    // shoeScene.add(directionalLight);
-
-    // // add the camera so the pointlight following the camera will work
-    // shoeScene.add(shoeCamera);
-
     // setting the plane to which the model's shadow will cast
     var planeGeometry = new THREE.PlaneBufferGeometry(50, 50, 32, 32);
     var planeMaterial = new THREE.ShadowMaterial({
@@ -125,7 +97,6 @@ function loadModelOntoPage(json) {
     shoeScene.add(plane);
 
     // add the progress bar cubes
-    // createProgress(shoeScene); 
     var progressObject = new Progress(shoeScene, json.totalFileSize);
     progressObject.create();
 

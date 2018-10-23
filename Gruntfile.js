@@ -36,7 +36,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
     //create default task
-    grunt.registerTask("default", ["uglify"]);
+    grunt.registerTask("default", ["concat","uglify"]);
 
     //watch files
     grunt.loadNpmTasks('grunt-contrib-watch');
