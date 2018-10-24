@@ -43,10 +43,7 @@ THREE.MTLLoader.prototype = {
 
 	},
 	loadNew: function (which, diffuse, normal, rough) {
-		// this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse);
 		this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse);
-		console.log(diffuse);
-		console.log(this.resourcePath);
 		var materialsInfo = {};
 		materialsInfo[which]=
 			{
@@ -62,9 +59,6 @@ THREE.MTLLoader.prototype = {
 				'map_Ks':rough.replace(this.resourcePath,''),
 				'map_bump':normal.replace(this.resourcePath,'')
 			}
-		
-
-		console.log(materialsInfo);
 
 
 		var materialCreator = new THREE.MTLLoader.MaterialCreator(this.resourcePath, this.materialOptions);

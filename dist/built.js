@@ -47126,7 +47126,7 @@ if ( typeof module === 'object' ) {
 ;// Setting global variables
 var connectingElement = "product-canvas";
 var cameraDistance = 50;
-var modelInitialPosition = new THREE.Vector3(0, -4, 0);
+var modelInitialPosition = new THREE.Vector3(0, -1.5, 0);
 var shoeRenderer;
 var shoeCamera;
 var shoeScene;
@@ -47142,13 +47142,14 @@ var modelInitialRotation = Math.PI / 2;
 
 
 function loadModelOntoPage(json) {
-    //Setting the mouse listeners
-    window.addEventListener('resize', onWindowResize, false);
-    window.addEventListener('mousedown', onMouseDown, false);
-    window.addEventListener('mouseup', onMouseUp, false);
 
     // getting the shoeContainer
     shoeContainer = document.getElementById(connectingElement);
+
+    //Setting the mouse listeners
+    shoeContainer.addEventListener('resize', onWindowResize, false); 
+    shoeContainer.addEventListener('mousedown', onMouseDown, false);
+    shoeContainer.addEventListener('mouseup', onMouseUp, false);
 
     // setting up the camera - this position just looks a little better to me
     shoeCamera = new THREE.PerspectiveCamera(45, shoeContainer.clientWidth / shoeContainer.clientHeight, 1, 100);
@@ -47218,7 +47219,7 @@ function loadModelOntoPage(json) {
     plane.name = "shadowPlane";
     plane.receiveShadow = true;
     plane.rotation.x = -(Math.PI / 36) * 17;
-    plane.position.y = -9;
+    plane.position.y = modelInitialPosition.y - 5;
     shoeScene.add(plane);
 
     // add the progress bar cubes
@@ -47228,6 +47229,8 @@ function loadModelOntoPage(json) {
     // ading the orbit controls - pan and zoom
     var controls = new THREE.OrbitControls(shoeCamera, shoeContainer);
     controls.target.set(0, 5, 0);
+    controls.enablePan = false;
+    controls.enableZoom = false;
     // the max and min zoom here
     controls.maxDistance = cameraDistance;
     controls.minDistance = 10;
@@ -47239,7 +47242,7 @@ function loadModelOntoPage(json) {
         antialias: true
     });
     shoeRenderer.setPixelRatio(window.devicePixelRatio);
-    shoeRenderer.setSize(shoeContainer.clientWidth, shoeContainer.clientHeight);
+    shoeRenderer.setSize((shoeContainer.clientWidth),(shoeContainer.clientHeight));
     shoeRenderer.gammaInput = true;
     shoeRenderer.gammaOutput = true;
     shoeRenderer.shadowMap.enabled = true;
@@ -47250,7 +47253,7 @@ function loadModelOntoPage(json) {
     shoeContainer.appendChild(shoeRenderer.domElement);
 
 
-    // var envMap = new THREE.CubeTextureLoader().load([
+    // var envMap = new THREE.CubeTextureLoader().load([ 
     //     'pics/xp.png',
     //     'pics/xn.png',
     //     'pics/yp.png',
@@ -47305,7 +47308,7 @@ function loadModelOntoPage(json) {
 
     //     }, function (progress) {
     //         console.log(progress);
-    //         var pro = progress.loaded / progress.total;
+    //         var pro = progress.loaded / progress.total; 
     //         var proResult = pro - progresses[1];
     //         progresses[1] = pro;
     //         updateProgress(proResult / 2);
@@ -47329,7 +47332,7 @@ function loadModelOntoPage(json) {
     var matS = mtl_loader.loadNew('KT4S', json.diffuse, json.normal, json.rough);
     var matF = mtl_loader.loadNew('KT4F', json.diffuse, json.normal, json.rough);
 
-    console.log(matS);
+    // console.log(matS);
     matS.preload();
     matF.preload();
 
@@ -47355,7 +47358,7 @@ function loadModelOntoPage(json) {
             shiny.rotation.y = modelInitialRotation;
             shiny.position.y = -5;
             shiny.scale.set(modelScale, modelScale, modelScale);
-            console.log(shiny);
+            // console.log(shiny);
 
             obj_loader.setMaterials(matF);
             obj_loader.load(json.fab,
@@ -47459,6 +47462,7 @@ function Progress(sceneVar, totalSize) {
         progObject.add(back);
         // progObject.position.y = 5;
         progObject.rotation.x = 0.052;
+        progObject.position.y = 5;
         progObject.position.z = 5;
         progSceneVar.add(progObject);
     }
@@ -47534,17 +47538,13 @@ function onWindowResize() {
 }
 
 function onMouseDown(event) {
-    if (inContainer(event)) {
-        if (!animation.isRotating()) {
-
-            shoeScene.children.forEach(function (element) {
-                if (element.name === "shadowPlane") {
-                    shoeScene.remove(element);
-                    animation.stopFloat();
-                }
-            });
+    shoeScene.children.forEach(function (element) {
+        if (element.name === "shadowPlane") {
+            shoeScene.remove(element);
+            animation.stopFloat();
         }
-    }
+        animation.stopRotate();
+    });
 }
 
 function onMouseUp(event) {
@@ -47581,7 +47581,7 @@ function AnimateModel() {
         } else if (AMFloatHasPermission & !AMRotating) {
             this.float();
         }
-    }
+    } 
     this.hasModel = function () {
         return AMmodel;
     }
@@ -47597,11 +47597,13 @@ function AnimateModel() {
         AMRotating = false;
     }
     this.rotate = function () {
-        if (AMRotateProgress >= ((2 * Math.PI))) {
-            this.stopRotate();
-        } else {
-            AMRotateProgress += rotationAnimationSpeed;
-            AMmodel.rotation.y = modelInitialRotation + AMRotateProgress;
+        if (AMRotating){
+            if (AMRotateProgress >= ((2 * Math.PI))) {
+                this.stopRotate();
+            } else {
+                AMRotateProgress += rotationAnimationSpeed;
+                AMmodel.rotation.y = modelInitialRotation + AMRotateProgress;
+            }
         }
     }
     this.isRotating = function () {
@@ -47763,10 +47765,7 @@ THREE.MTLLoader.prototype = {
 
 	},
 	loadNew: function (which, diffuse, normal, rough) {
-		// this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse);
 		this.resourcePath = THREE.LoaderUtils.extractUrlBase(diffuse);
-		console.log(diffuse);
-		console.log(this.resourcePath);
 		var materialsInfo = {};
 		materialsInfo[which]=
 			{
@@ -47782,9 +47781,6 @@ THREE.MTLLoader.prototype = {
 				'map_Ks':rough.replace(this.resourcePath,''),
 				'map_bump':normal.replace(this.resourcePath,'')
 			}
-		
-
-		console.log(materialsInfo);
 
 
 		var materialCreator = new THREE.MTLLoader.MaterialCreator(this.resourcePath, this.materialOptions);
