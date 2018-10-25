@@ -28,10 +28,6 @@ module.exports = function (grunt) {
         },
     });
 
-
-
-   
-   
     //load uglify plugin
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
