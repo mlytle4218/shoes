@@ -322,7 +322,7 @@ function Progress(sceneVar, totalSize) {
     var progFront;
 
     this.create = function () {
-        var geometry = new THREE.PlaneGeometry(33, 3, 3);
+        var geometry = new THREE.PlaneGeometry(22, 2, 2);
         var material = new THREE.MeshBasicMaterial({
             color: 0xff0000
         });
