@@ -14,7 +14,8 @@ module.exports = function (grunt) {
         watch: {
             scripts: {
                 files: ["js/*"],
-                tasks: ["concat","uglify"]
+                // tasks: ["concat","uglify"]
+                tasks: ["concat"]
             }
         },
         concat: {
@@ -22,7 +23,22 @@ module.exports = function (grunt) {
             separator: ';',
           },
           dist: {
-            src: ['js/three.js','js/OrbitControls.js','js/Detector.js','js/Init.js','js/dat.gui.min.js','js/MTLLoader.js','js/OBJLoader.js','js/EffectComposer.js','js/RenderPass.js','js/ShaderPass.js','js/SAOShader.js','js/CopyShader.js','js/SSAOShader.js','js/SSAOPass.js','js/SSAARenderPass.js','js/TAARenderPass.js'],
+            src: ['js/three.js',
+            'js/OrbitControls.js',
+            'js/Detector.js',
+            'js/Init.js',
+            'js/dat.gui.min.js',
+            'js/MTLLoader.js',
+            'js/OBJLoader.js',
+            'js/EffectComposer.js',
+            'js/RenderPass.js',
+            'js/ShaderPass.js',
+            'js/SAOShader.js',
+            'js/CopyShader.js',
+            'js/SSAOShader.js',
+            'js/SSAOPass.js',
+            'js/SSAARenderPass.js',
+            'js/TAARenderPass.js'],
             dest: 'dist/built.js',
           },
         },

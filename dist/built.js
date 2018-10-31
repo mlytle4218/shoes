@@ -47152,7 +47152,7 @@ function loadModelOntoPage(json) {
     shoeContainer.addEventListener('mouseup', onMouseUp, false);
 
     // setting up the camera - this position just looks a little better to me
-    shoeCamera = new THREE.PerspectiveCamera(45, shoeContainer.clientWidth / shoeContainer.clientHeight, 1, 100);
+    shoeCamera = new THREE.PerspectiveCamera(45, shoeContainer.clientWidth / shoeContainer.clientHeight, 1, 150);
     shoeCamera.position.set(0, 0, cameraDistance);
 
     // setting the scene
@@ -47161,54 +47161,130 @@ function loadModelOntoPage(json) {
     shoeScene.background = color;
 
     // setting the ambient light for the model
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    shoeScene.add(ambientLight);
+    if (json.config.ambientLight){
+        var ambientLight = new THREE.AmbientLight(
+            parseInt(json.config.ambientLight.color, 16),
+            json.config.ambientLight.intesity
+            );
+        if (json.config.ambientLight.on){
+            shoeScene.add(ambientLight);
+        }
+    }
 
     // setting the point light that stays with the camera
-    var pointLight = new THREE.PointLight(0x999999, 0.05, 11, 2);
-    pointLight.position.set(0, -10, 0); //.normalize();
-    // pointLight.castShadow = true;
-    // //Set up shadow properties for the light;
-    // pointLight.shadow.mapSize.width = 1024; // default
-    // pointLight.shadow.mapSize.height = 1024; // default
-    // pointLight.shadow.camera.near = 1; // default
-    // pointLight.shadow.camera.far = 1000 // default
-    shoeCamera.add(pointLight);
+    var pointLight;
+    if (json.config.cameraLight){
+        pointLight = new THREE.PointLight(
+            parseInt(json.config.cameraLight.color,16),
+            json.config.cameraLight.intesity, 
+            json.config.cameraLight.distance, 
+            json.config.cameraLight.decay);
+        pointLight.position.set(
+            json.config.cameraLight.x,
+            json.config.cameraLight.y,
+            json.config.cameraLight.z
+            );
+        if (json.config.cameraLight.on){
+            shoeCamera.add(pointLight);
+            // add the camera so the pointlight following the camera will work
+            shoeScene.add(shoeCamera);
+        }
+    } else {
+        pointLight = new THREE.PointLight(0x999999, 0.05, 11, 2);
+        pointLight.position.set(0, -10, 0);
+        shoeCamera.add(pointLight);
+        // add the camera so the pointlight following the camera will work
+        shoeScene.add(shoeCamera);
+    }
+
+
 
     // setting a directional light directly over the model to light and cast shadows
-    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(0, 40, 0);
-    directionalLight.castShadow = true;
-    // var helper = new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000);
-    // directionalLight.add(helper)
+    var directionalLight;
+    if (json.config.mainLight){
+        directionalLight = new THREE.DirectionalLight(
+            parseInt(json.config.mainLight.color,16),
+            json.config.mainLight.intesity);
+        directionalLight.position.set(
+            json.config.mainLight.x,
+            json.config.mainLight.y,
+            json.config.mainLight.z);
+        directionalLight.castShadow = json.config.mainLight.shadow;
+        if (json.config.mainLight.helper){
+                var helper = new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000);
+                directionalLight.add(helper);
+        }
+        directionalLight.shadow.mapSize.width = 512; // default
+        directionalLight.shadow.mapSize.height = 512; // default
+        directionalLight.shadow.camera.near = 0.5; // default
+        directionalLight.shadow.camera.far = 500; // default
+        directionalLight.shadow.camera = new THREE.OrthographicCamera(-75, 75, 75, -75, 0.5, 1000);
+        if (json.config.mainLight.on){
+            shoeScene.add(directionalLight);
+        }
+    } else {
+        directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(0, 40, 0);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 512; // default
+        directionalLight.shadow.mapSize.height = 512; // default
+        directionalLight.shadow.camera.near = 0.5; // default
+        directionalLight.shadow.camera.far = 500; // default
+        directionalLight.shadow.camera = new THREE.OrthographicCamera(-75, 75, 75, -75, 0.5, 1000);
+        shoeScene.add(directionalLight);
+    }
 
     //Set up shadow properties for the light
-    directionalLight.shadow.mapSize.width = 512; // default
-    directionalLight.shadow.mapSize.height = 512; // default
-    directionalLight.shadow.camera.near = 0.5; // default
-    directionalLight.shadow.camera.far = 500; // default
-    directionalLight.shadow.camera = new THREE.OrthographicCamera(-75, 75, 75, -75, 0.5, 1000);
-    shoeScene.add(directionalLight);
+    
 
     // setting a directional light directly over the model to light and cast shadows
-    var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight2.position.set(-10, 40, 0);
-    // directionalLight2.castShadow = true;
-    shoeScene.add(directionalLight2);
-    // var helper2 = new THREE.DirectionalLightHelper(directionalLight2, 5, 0x00ff00);
-    // directionalLight2.add(helper2)
+    var directionalLight2;
+    if (json.config.backLight){
+        directionalLight2 = new THREE.DirectionalLight(
+            parseInt(json.config.backLight.color,16),
+            json.config.backLight.intesity);
+        directionalLight2.position.set(
+            json.config.backLight.x,
+            json.config.backLight.y,
+            json.config.backLight.z);
+        directionalLight2.castShadow = json.config.backLight.shadow;
+        if (json.config.backLight.helper){
+                var helper = new THREE.DirectionalLightHelper(directionalLight2, 5, 0x0000ff);
+                directionalLight2.add(helper);
+        }
+        if (json.config.backLight.on){
+            shoeScene.add(directionalLight2);
+        }
+    } else {
+        directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight2.position.set(-10, 40, 0);
+        shoeScene.add(directionalLight2);
+    }
+
 
     // setting a directional light directly over the model to light and cast shadows
-    var directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight3.position.set(10, 40, 0);
-    // directionalLight3.castShadow = true;
-    shoeScene.add(directionalLight3);
-
-    // var helper3 = new THREE.DirectionalLightHelper(directionalLight3, 5, 0x0000ff);
-    // directionalLight3.add(helper3)
-
-    // add the camera so the pointlight following the camera will work
-    shoeScene.add(shoeCamera);
+    var directionalLight3;
+    if (json.config.frontLight){
+        directionalLight3 = new THREE.DirectionalLight(
+            parseInt(json.config.frontLight.color,16),
+            json.config.frontLight.intesity);
+        directionalLight3.position.set(
+            json.config.frontLight.x,
+            json.config.frontLight.y,
+            json.config.frontLight.z);
+        directionalLight3.castShadow = json.config.frontLight.shadow;
+        if (json.config.frontLight.helper){
+                var helper = new THREE.DirectionalLightHelper(directionalLight3, 5, 0x00ff00);
+                directionalLight3.add(helper);
+        }
+        if (json.config.frontLight.on){
+            shoeScene.add(directionalLight3);
+        }
+    } else {
+        directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight3.position.set(10, 40, 0);
+        shoeScene.add(directionalLight3);
+    }
 
     // setting the plane to which the model's shadow will cast
     var planeGeometry = new THREE.PlaneBufferGeometry(50, 50, 32, 32);
@@ -47268,85 +47344,19 @@ function loadModelOntoPage(json) {
     animation = new AnimateModel();
 
 
-    // setting up the loaders to bring in the models and update the progrss bars as well
-
-    // var progresses = [0, 0];
-
-    // var gltfLoader = new THREE.GLTFLoader();
-
-    // gltfLoader.load(json.fab, function (fab) {
-    //     fab.scene.children[0].material.roughness = 0.8;
-    //     fab.scene.traverse(function (child) {
-    //         if (child instanceof THREE.Mesh) {
-    //             child.castShadow = true;
-    //         }
-    //     });
-
-    //     gltfLoader.load(json.shiny, function (shiny) {
-    //         shiny.scene;
-    //         shiny.scene.children[0].material.roughness = 0.2;
-    //         shiny.scene.traverse(function (child) {
-    //             if (child instanceof THREE.Mesh) {
-    //                 child.castShadow = true;
-    //             }
-    //         });
-    //         fab.scene.rotation.y = Math.PI / 2;
-    //         fab.scene.scale.set(modelScale, modelScale, modelScale);
-    //         fab.scene.add(shiny.scene);
-    //         shoeScene.add(fab.scene);
-    //         fab.scene.position.copy(modelInitialPosition);
-    //         fab.scene.traverse( function (child){
-    //             if (child.isMesh ) {
-    //                 child.material.envMap = envMap;
-    //             }
-    //         });
-    //         removeProgress();
-    //         animation.setModel(fab.scene);
-    //         animation.startRotate();
-    //         animation.startFloat();
-    //         addGui();
-
-    //     }, function (progress) {
-    //         console.log(progress);
-    //         var pro = progress.loaded / progress.total; 
-    //         var proResult = pro - progresses[1];
-    //         progresses[1] = pro;
-    //         updateProgress(proResult / 2);
-    //     }, function (error) {
-    //         console.error(error);
-    //     });
-    // }, function (progress) {
-    //     var pro = progress.loaded / progress.total;
-    //     var proResult = pro - progresses[0];
-    //     progresses[0] = pro;
-    //     updateProgress(proResult / 2);
-    // }, function (error) {
-    //     console.error(error);
-    // });
-
-
-    var progress; // = console.log;
     var err; // = console.error;
 
     mtl_loader = new THREE.MTLLoader();
     var matS = mtl_loader.loadNew('KT4S', json.diffuse, json.normal, json.rough);
     var matF = mtl_loader.loadNew('KT4F', json.diffuse, json.normal, json.rough);
 
-    // console.log(matS);
     matS.preload();
     matF.preload();
-
-    var shinyProgress = 0;
-    var fabricProgress = 0;
-
-
 
     var obj_loader = new THREE.OBJLoader();
     obj_loader.setMaterials(matS);
     obj_loader.load(json.shiny,
         function (shiny) {
-            shiny.children[0].material.roughness = 0.66;
-            shiny.children[0].material.metalness = 0.5;
             // shiny.children[0].material.envMap = envMap;
             shiny.traverse(function (child) {
                 if (child instanceof THREE.Mesh) {
@@ -47354,25 +47364,44 @@ function loadModelOntoPage(json) {
                     child.receiveShadow = true;
                 }
             });
-            model = shiny;
+            if (json.config.shiny){
+                shiny.position.y = json.config.shiny.y;
+                shiny.scale.set(
+                    json.config.shiny.scale,
+                    json.config.shiny.scale,
+                    json.config.shiny.scale
+                    );
+                shiny.children[0].material.roughness = json.config.shiny.roughness;
+                shiny.children[0].material.metalness = json.config.shiny.metalness;
+                shiny.children[0].material.refractionRatio = json.config.shiny.refractionRatio;
+
+            } else {
+                shiny.position.y = -5;
+                shiny.scale.set(modelScale, modelScale, modelScale);
+                shiny.children[0].material.roughness = 0.66;
+                shiny.children[0].material.metalness = 0.5;
+
+            }
             shiny.rotation.y = modelInitialRotation;
-            shiny.position.y = -5;
-            shiny.scale.set(modelScale, modelScale, modelScale);
-            // console.log(shiny);
 
             obj_loader.setMaterials(matF);
             obj_loader.load(json.fab,
                 function (fabric) {
                     // fabric.children[0].material.envMap = envMap;
-                    fabric.children[0].material.roughness = 0.8;
                     fabric.traverse(function (child) {
                         if (child instanceof THREE.Mesh) {
                             child.castShadow = true;
                             child.receiveShadow = true;
                         }
-                    })
-                    model2 = fabric;
-                    shiny.add(fabric)
+                    });
+                    if (json.config.fabric){
+                        fabric.children[0].material.roughness = json.config.fabric.roughness;
+                        fabric.children[0].material.metalness = json.config.fabric.metalness;
+                        fabric.children[0].material.refractionRatio = json.config.fabric.refractionRatio;
+                    } else {
+                        fabric.children[0].material.roughness = 0.8;
+                    }
+                    shiny.add(fabric);
                     shiny.position.copy(modelInitialPosition);
                     shoeScene.add(shiny);
                     // addGui();
