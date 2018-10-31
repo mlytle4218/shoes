@@ -47142,6 +47142,12 @@ var modelInitialRotation = Math.PI / 2;
 
 
 function loadModelOntoPage(json) {
+    if (json.config){
+        var request = new XMLHttpRequest();
+        request.open("GET", json.config, false);
+        request.send(null);
+        json.config = JSON.parse(request.responseText);
+    }
 
     // getting the shoeContainer
     shoeContainer = document.getElementById(connectingElement);
@@ -47161,19 +47167,23 @@ function loadModelOntoPage(json) {
     shoeScene.background = color;
 
     // setting the ambient light for the model
-    if (json.config.ambientLight){
-        var ambientLight = new THREE.AmbientLight(
+    var ambientLight;
+    if (json.config && json.config.ambientLight){
+        ambientLight = new THREE.AmbientLight(
             parseInt(json.config.ambientLight.color, 16),
             json.config.ambientLight.intesity
             );
         if (json.config.ambientLight.on){
             shoeScene.add(ambientLight);
         }
+    } else {
+        ambientLight = new THREE.AmbientLight(0x9999999, 0.8);
+        shoeScene.add(ambientLight);
     }
 
     // setting the point light that stays with the camera
     var pointLight;
-    if (json.config.cameraLight){
+    if (json.config && json.config.cameraLight){
         pointLight = new THREE.PointLight(
             parseInt(json.config.cameraLight.color,16),
             json.config.cameraLight.intesity, 
@@ -47201,7 +47211,7 @@ function loadModelOntoPage(json) {
 
     // setting a directional light directly over the model to light and cast shadows
     var directionalLight;
-    if (json.config.mainLight){
+    if (json.config && json.config.mainLight){
         directionalLight = new THREE.DirectionalLight(
             parseInt(json.config.mainLight.color,16),
             json.config.mainLight.intesity);
@@ -47239,7 +47249,7 @@ function loadModelOntoPage(json) {
 
     // setting a directional light directly over the model to light and cast shadows
     var directionalLight2;
-    if (json.config.backLight){
+    if (json.config && json.config.backLight){
         directionalLight2 = new THREE.DirectionalLight(
             parseInt(json.config.backLight.color,16),
             json.config.backLight.intesity);
@@ -47264,7 +47274,7 @@ function loadModelOntoPage(json) {
 
     // setting a directional light directly over the model to light and cast shadows
     var directionalLight3;
-    if (json.config.frontLight){
+    if (json.config && json.config.frontLight){
         directionalLight3 = new THREE.DirectionalLight(
             parseInt(json.config.frontLight.color,16),
             json.config.frontLight.intesity);
@@ -47364,7 +47374,7 @@ function loadModelOntoPage(json) {
                     child.receiveShadow = true;
                 }
             });
-            if (json.config.shiny){
+            if (json.config && json.config.shiny){
                 shiny.position.y = json.config.shiny.y;
                 shiny.scale.set(
                     json.config.shiny.scale,
@@ -47394,7 +47404,7 @@ function loadModelOntoPage(json) {
                             child.receiveShadow = true;
                         }
                     });
-                    if (json.config.fabric){
+                    if (json.config && json.config.fabric){
                         fabric.children[0].material.roughness = json.config.fabric.roughness;
                         fabric.children[0].material.metalness = json.config.fabric.metalness;
                         fabric.children[0].material.refractionRatio = json.config.fabric.refractionRatio;

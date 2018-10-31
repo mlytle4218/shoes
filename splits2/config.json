@@ -1,0 +1,63 @@
+{
+    "ambientLight": {
+        "on": true,
+        "color": "0x888888",
+        "intensity": 0.2
+    },
+    "mainLight": {
+        "on": true,
+        "color": "0x444444",
+        "intensity": 0.2,
+        "x": 0,
+        "y": 40,
+        "z": 0,
+        "shadow": true,
+        "helper": false
+    },
+    "backLight": {
+        "on": true,
+        "color": "0x444444",
+        "intensity": 0.2,
+        "x": -10,
+        "y": 40,
+        "z": 0,
+        "shadow": false,
+        "helper": false
+    },
+    "frontLight": {
+        "on": true,
+        "color": "0x444444",
+        "intensity": 0.2,
+        "x": 10,
+        "y": 40,
+        "z": 0,
+        "shadow": false,
+        "helper": false
+    },
+    "cameraLight": {
+        "on": true,
+        "color": "0x999999",
+        "intensity": 0.05,
+        "distace": 11,
+        "decay": 2,
+        "x": 0,
+        "y": -10,
+        "z": 0,
+        "shadow": false,
+        "helper": false
+    },
+    "shiny": {
+        "x": 0,
+        "y": 0,
+        "z": -5,
+        "scale": 0.8,
+        "roughness": 0.6,
+        "metalness": 0.6,
+        "refactionRatio": 0.98
+    },
+    "fabric": {
+        "roughness": 0.8,
+        "metalness": 0.5,
+        "refactionRatio": 0.98
+    }
+}
