@@ -47323,12 +47323,23 @@ function loadModelOntoPage(json) {
     controls.update();
 
 
+//     var renderer = new THREE.WebGLRenderer({canvas: canvas});
+// canvas.width  = canvas.clientWidth;
+// canvas.height = canvas.clientHeight;
+// renderer.setViewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+
     //set renderer
     shoeRenderer = new THREE.WebGLRenderer({
-        antialias: true
+        antialias: true,
+        canvas: shoeContainer
     });
+    shoeContainer.width = shoeContainer.clientWidth;
+    shoeContainer.height = shoeContainer.clientHeight;
+
     shoeRenderer.setPixelRatio(window.devicePixelRatio);
-    shoeRenderer.setSize((shoeContainer.clientWidth),(shoeContainer.clientHeight));
+    // shoeRenderer.setSize((shoeContainer.clientWidth),(shoeContainer.clientHeight));
+    shoeRenderer.setViewport(0,0,(shoeContainer.clientWidth),(shoeContainer.clientHeight));
     shoeRenderer.gammaInput = true;
     shoeRenderer.gammaOutput = true;
     shoeRenderer.shadowMap.enabled = true;
@@ -47336,7 +47347,7 @@ function loadModelOntoPage(json) {
 
     shoeRenderer.physicallyBasedShading = true;
 
-    shoeContainer.appendChild(shoeRenderer.domElement);
+    // shoeContainer.appendChild(shoeRenderer.domElement);
 
 
     // var envMap = new THREE.CubeTextureLoader().load([ 
