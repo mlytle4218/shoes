@@ -47326,31 +47326,13 @@ function loadModelOntoPage(json) {
     controls.update();
 
 
-//     var renderer = new THREE.WebGLRenderer({canvas: canvas});
-// canvas.width  = canvas.clientWidth;
-// canvas.height = canvas.clientHeight;
-// renderer.setViewport(0, 0, canvas.clientWidth, canvas.clientHeight);
-
-
-    //set renderer
-    // shoeRenderer = new THREE.WebGLRenderer({
-    //     antialias: true,
-    //     canvas: shoeContainer
-    // });
     shoeRenderer = new THREE.WebGLRenderer({
         antialias: true
     });
 
 
-
-    // shoeContainer.width = shoeContainer.clientWidth;
-    // shoeContainer.height = shoeContainer.clientHeight;
-    console.log(shoeContainer);
     shoeRenderer.setPixelRatio(window.devicePixelRatio);
     shoeRenderer.setSize((shoeContainer.clientWidth),(shoeContainer.clientHeight));
-    // shoeRenderer.setSize(200,200);
-    // shoeRenderer.setViewport(0, 0, shoeContainer.clientWidth, shoeContainer.clientHeight);
-    // shoeRenderer.setViewport(0, 0, 200, 200);
     shoeRenderer.gammaInput = true;
     shoeRenderer.gammaOutput = true;
     shoeRenderer.shadowMap.enabled = true;
@@ -47458,28 +47440,28 @@ function loadModelOntoPage(json) {
 
 
 
-    shoeComposer = new THREE.EffectComposer(shoeRenderer);
+    // shoeComposer = new THREE.EffectComposer(shoeRenderer);
 
 
 
-    shoeRenderPass = new THREE.RenderPass(shoeScene, shoeCamera);
-    shoeComposer.addPass(shoeRenderPass);
+    // shoeRenderPass = new THREE.RenderPass(shoeScene, shoeCamera);
+    // shoeComposer.addPass(shoeRenderPass);
 
 
 
 
-    // Setup SSAO pass
-    shoeSsaoPass = new THREE.SSAOPass(shoeScene, shoeCamera);
-    shoeSsaoPass.radius = 35;
-    shoeSsaoPass.aoClamp = 0.18;
-    shoeSsaoPass.lumInfluence = 0.85;
-    shoeSsaoPass.renderToScreen = true;
-    shoeComposer.addPass(shoeSsaoPass);
+    // // Setup SSAO pass
+    // shoeSsaoPass = new THREE.SSAOPass(shoeScene, shoeCamera);
+    // shoeSsaoPass.radius = 35;
+    // shoeSsaoPass.aoClamp = 0.18;
+    // shoeSsaoPass.lumInfluence = 0.85;
+    // shoeSsaoPass.renderToScreen = true;
+    // shoeComposer.addPass(shoeSsaoPass);
 
-    shoeTaaRenderPass = new THREE.TAARenderPass(shoeScene, shoeCamera);
-    shoeTaaRenderPass.unbiased = true;
-    shoeTaaRenderPass.sampleLevel = 1;
-    shoeComposer.addPass(shoeTaaRenderPass);
+    // shoeTaaRenderPass = new THREE.TAARenderPass(shoeScene, shoeCamera);
+    // shoeTaaRenderPass.unbiased = true;
+    // shoeTaaRenderPass.sampleLevel = 1;
+    // shoeComposer.addPass(shoeTaaRenderPass);
 
     // stats = new Stats();
     // stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -47501,7 +47483,6 @@ function animate() {
     }
     requestAnimationFrame(animate);
     shoeRenderer.render(shoeScene, shoeCamera);
-    // animation.end();
     // stats.end();
 }
 
@@ -47529,7 +47510,6 @@ function Progress(sceneVar, totalSize) {
         back.position.z = -0.001;
         progObject.add(progFront);
         progObject.add(back);
-        // progObject.position.y = 5;
         progObject.rotation.x = 0.052;
         progObject.position.y = 4;
         progObject.position.z = 5;
@@ -47554,51 +47534,7 @@ function Progress(sceneVar, totalSize) {
 
 }
 
-// function createProgress(sceneVar) {
-//     // setting the cubes for the progress bar
-//     var geometry = new THREE.PlaneGeometry(33, 3, 3);
-//     var material = new THREE.MeshBasicMaterial({
-//         color: 0xff0000
-//     });
-//     var cubeFront = new THREE.Mesh(geometry, material);
-//     cubeFront.scale.x = 0.0001;
-//     cubeFront.position.y = 5;
-//     cubeFront.name = "cubeFront";
-//     var material2 = new THREE.MeshBasicMaterial({
-//         color: 0xcccccc
-//     });
-//     var cubeBack = new THREE.Mesh(geometry, material2);
-//     cubeBack.position.z = -1;
-//     cubeBack.position.y = 5;
-//     cubeBack.name = "cubeBack";
-//     sceneVar.add(cubeBack);
-//     sceneVar.add(cubeFront);
 
-// }
-
-// function updateProgress(progress) {
-//     shoeScene.children.forEach(function (element) {
-//         if (element.name === "cubeFront") {
-//             element.scale.x += progress;
-//             element.position.x = -(1 - element.scale.x) * (element.geometry.parameters.width / 2);
-//         }
-//     });
-// }
-
-// function removeProgress() {
-//     var front;
-//     var back;
-//     shoeScene.children.forEach(function (element) {
-//         if (element.name === "cubeFront") {
-//             front = element;
-//         }
-//         if (element.name === "cubeBack") {
-//             back = element;
-//         }
-//     });
-//     shoeScene.remove(front);
-//     shoeScene.remove(back);
-// }
 
 function onWindowResize() {
     shoeCamera.aspect = shoeContainer.clientWidth / shoeContainer.clientHeight;
@@ -47657,7 +47593,6 @@ function AnimateModel() {
     var AMFloatProgress = 0;
     var AMFloatSign = 1;
     var AMFloatSpeed = 0.015625;
-    // var AMFloatSpeed = 0.0625;
     var AMFloatDistance = 1;
     var AMFloatDirection = -1;
 
@@ -47693,11 +47628,6 @@ function AnimateModel() {
                 this.stopRotate();
             } else {
                 this.end();
-                // console.log(fps);
-                // console.log(rotationAnimationSpeed +":"+fps+":"+rotationAnimationSpeed*(fps/(1/30)));
-                console.log(fps);
-                // AMRotateProgress += rotationAnimationSpeed * (15/fps);//*(fps/(1/30));
-                // console.log((fps/(1/30))+":"+rotationAnimationSpeed*(fps/(1/30))+":"+AMRotateProgress);
 
 
                 var adjRate =1;
@@ -47713,12 +47643,11 @@ function AnimateModel() {
                     adjRate = 0.4;
                 }
 
-                AMRotateProgress += (rotationAnimationSpeed * adjRate) ;// * adjRate;
+                AMRotateProgress += (rotationAnimationSpeed * adjRate);
 
 
 
                 AMmodel.rotation.y = modelInitialRotation + AMRotateProgress;
-                // AMmodel.rotation.y += rotationAnimationSpeed;
             }
         }
     }
