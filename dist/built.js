@@ -47139,6 +47139,7 @@ var shoeSsaoPass;
 var shoeTaaRenderPass;
 var rotationAnimationSpeed = 0.05;
 var modelInitialRotation = Math.PI / 2;
+var trackFrames;
 
 
 function loadModelOntoPage(json) {
@@ -47153,12 +47154,14 @@ function loadModelOntoPage(json) {
     shoeContainer = document.getElementById(connectingElement);
 
     //Setting the mouse listeners
-    shoeContainer.addEventListener('resize', onWindowResize, false); 
+    window.addEventListener('resize', onWindowResize, false); 
     shoeContainer.addEventListener('mousedown', onMouseDown, false);
     shoeContainer.addEventListener('mouseup', onMouseUp, false);
+    shoeContainer.addEventListener('touchstart',onTouchStart, false);
 
     // setting up the camera - this position just looks a little better to me
     shoeCamera = new THREE.PerspectiveCamera(45, shoeContainer.clientWidth / shoeContainer.clientHeight, 1, 150);
+    // shoeCamera = new THREE.PerspectiveCamera(45, 200 / 200, 1, 150);
     shoeCamera.position.set(0, 0, cameraDistance);
 
     // setting the scene
@@ -47330,16 +47333,24 @@ function loadModelOntoPage(json) {
 
 
     //set renderer
+    // shoeRenderer = new THREE.WebGLRenderer({
+    //     antialias: true,
+    //     canvas: shoeContainer
+    // });
     shoeRenderer = new THREE.WebGLRenderer({
-        antialias: true,
-        canvas: shoeContainer
+        antialias: true
     });
-    shoeContainer.width = shoeContainer.clientWidth;
-    shoeContainer.height = shoeContainer.clientHeight;
 
+
+
+    // shoeContainer.width = shoeContainer.clientWidth;
+    // shoeContainer.height = shoeContainer.clientHeight;
+    console.log(shoeContainer);
     shoeRenderer.setPixelRatio(window.devicePixelRatio);
-    // shoeRenderer.setSize((shoeContainer.clientWidth),(shoeContainer.clientHeight));
-    shoeRenderer.setViewport(0,0,(shoeContainer.clientWidth),(shoeContainer.clientHeight));
+    shoeRenderer.setSize((shoeContainer.clientWidth),(shoeContainer.clientHeight));
+    // shoeRenderer.setSize(200,200);
+    // shoeRenderer.setViewport(0, 0, shoeContainer.clientWidth, shoeContainer.clientHeight);
+    // shoeRenderer.setViewport(0, 0, 200, 200);
     shoeRenderer.gammaInput = true;
     shoeRenderer.gammaOutput = true;
     shoeRenderer.shadowMap.enabled = true;
@@ -47347,7 +47358,7 @@ function loadModelOntoPage(json) {
 
     shoeRenderer.physicallyBasedShading = true;
 
-    // shoeContainer.appendChild(shoeRenderer.domElement);
+    shoeContainer.appendChild(shoeRenderer.domElement);
 
 
     // var envMap = new THREE.CubeTextureLoader().load([ 
@@ -47363,6 +47374,7 @@ function loadModelOntoPage(json) {
 
     // setting up the animation
     animation = new AnimateModel();
+    trackFrames = new TrackFrames();
 
 
     var err; // = console.error;
@@ -47424,12 +47436,15 @@ function loadModelOntoPage(json) {
                     }
                     shiny.add(fabric);
                     shiny.position.copy(modelInitialPosition);
-                    shoeScene.add(shiny);
-                    // addGui();
-                    animation.startRotate();
-                    animation.startFloat();
-                    animation.setModel(shiny);
-                    progressObject.remove();
+                    setTimeout(function(){
+
+                        shoeScene.add(shiny);
+                        // addGui();
+                        animation.startRotate();
+                        animation.startFloat();
+                        animation.setModel(shiny);
+                        progressObject.remove();
+                    },1000);
                 },
                 function (prog) {
                     progressObject.update('fabric', prog.loaded);
@@ -47469,6 +47484,7 @@ function loadModelOntoPage(json) {
     // stats = new Stats();
     // stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
     // document.body.appendChild(stats.dom);
+    // console.log(stats);
 
 
     animate();
@@ -47485,8 +47501,11 @@ function animate() {
     }
     requestAnimationFrame(animate);
     shoeRenderer.render(shoeScene, shoeCamera);
+    // animation.end();
     // stats.end();
 }
+
+
 
 function Progress(sceneVar, totalSize) {
     var progTotalSize = totalSize;
@@ -47587,6 +47606,16 @@ function onWindowResize() {
     shoeRenderer.setSize(shoeContainer.clientWidth, shoeContainer.clientHeight)
 }
 
+function onTouchStart(event){
+    shoeScene.children.forEach(function (element) {
+        if (element.name === "shadowPlane") {
+            shoeScene.remove(element);
+            animation.stopFloat();
+        }
+        animation.stopRotate();
+    });
+}
+
 function onMouseDown(event) {
     shoeScene.children.forEach(function (element) {
         if (element.name === "shadowPlane") {
@@ -47610,8 +47639,17 @@ function inContainer(thisEvent) {
     return false;
 }
 
+function TrackFrames(){
+    this.getFPS = function() {
+        return fps;
+    }
+}
+
 
 function AnimateModel() {
+    var prevTime=0;
+    var frames=0;
+    var fps = 30;
     var AMmodel;
     var AMRotating = false;
     var AMRotateProgress = 0;
@@ -47646,18 +47684,55 @@ function AnimateModel() {
     this.stopRotate = function () {
         AMRotating = false;
     }
+    this.isRotating = function () {
+        return AMRotating;
+    }
     this.rotate = function () {
         if (AMRotating){
             if (AMRotateProgress >= ((2 * Math.PI))) {
                 this.stopRotate();
             } else {
-                AMRotateProgress += rotationAnimationSpeed;
+                this.end();
+                // console.log(fps);
+                // console.log(rotationAnimationSpeed +":"+fps+":"+rotationAnimationSpeed*(fps/(1/30)));
+                console.log(fps);
+                // AMRotateProgress += rotationAnimationSpeed * (15/fps);//*(fps/(1/30));
+                // console.log((fps/(1/30))+":"+rotationAnimationSpeed*(fps/(1/30))+":"+AMRotateProgress);
+
+
+                var adjRate =1;
+                if (fps < 15) {
+                    adjRate = 1.5;
+                } else if (fps >= 15 & fps < 30){
+                    adjRate = 1.25;
+                } else if (fps >= 31 & fps < 45 ){
+                    adjRate = 0.75;
+                } else if (fps >= 45 & fps < 60) {
+                    adjRate = 0.5;
+                } else if (fps > 60){
+                    adjRate = 0.4;
+                }
+
+                AMRotateProgress += (rotationAnimationSpeed * adjRate) ;// * adjRate;
+
+
+
                 AMmodel.rotation.y = modelInitialRotation + AMRotateProgress;
+                // AMmodel.rotation.y += rotationAnimationSpeed;
             }
         }
     }
-    this.isRotating = function () {
-        return AMRotating;
+    this.end = function(){
+        frames++;
+        time = Date.now();
+        if (time >= prevTime + 500){
+            var temp =  ( frames * 1000 ) / ( time - prevTime );
+            if (temp > 1){
+                fps = temp;
+            }
+            prevTime = time;
+            frames = 0;
+        }
     }
 
     this.startFloat = function () {
