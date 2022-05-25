@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/mlytle4218/shoes#readme",
   "devDependencies": {
-    "grunt": "^1.0.3"
+    "grunt": "^1.5.3"
   },
   "dependencies": {
     "grunt-contrib-concat": "^1.0.1",
